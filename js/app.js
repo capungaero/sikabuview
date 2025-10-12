@@ -1,6 +1,6 @@
 /**
- * Main Application Controller for SikaBu View
- * Handles navigation, initialization, and data management
+ * Main Application Controller for Sikabuview
+ * Handles initialization and data management
  */
 
 class SikaBuApp {
@@ -11,26 +11,23 @@ class SikaBuApp {
     }
     
     async init() {
-        // Initialize UI
-        this.setupNavigation();
-        this.setupDataManagement();
-        this.showTab('dashboard');
-        
         // Wait for all managers to be initialized
         await this.waitForManagers();
         
+        // Initialize data management
+        this.setupDataManagement();
+        
         // Update initial data
         this.updateDatabaseStatus();
+        
+        // Show initial tab
+        this.showTab('dashboard');
     }
     
     async waitForManagers() {
         // Wait for all manager instances to be available
         const checkManagers = () => {
-            return window.dbManager && 
-                   window.bookingManager && 
-                   window.paymentManager && 
-                   window.financeManager && 
-                   window.printManager;
+            return window.dbManager;
         };
         
         while (!checkManagers()) {
@@ -45,41 +42,6 @@ class SikaBuApp {
             finance: window.financeManager,
             print: window.printManager
         };
-    }
-    
-    setupNavigation() {
-        // Tab navigation
-        const navLinks = document.querySelectorAll('.main-nav a[data-tab]');
-        navLinks.forEach(link => {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                const tabName = link.getAttribute('data-tab');
-                this.showTab(tabName);
-            });
-        });
-        
-        // Modal close events
-        const modal = document.getElementById('modal');
-        const closeBtn = modal?.querySelector('.close');
-        
-        if (closeBtn) {
-            closeBtn.addEventListener('click', () => this.closeModal());
-        }
-        
-        if (modal) {
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) {
-                    this.closeModal();
-                }
-            });
-        }
-        
-        // Escape key to close modal
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                this.closeModal();
-            }
-        });
     }
     
     setupDataManagement() {
@@ -114,8 +76,8 @@ class SikaBuApp {
             tab.classList.remove('active');
         });
         
-        // Remove active class from all nav links
-        document.querySelectorAll('.main-nav a').forEach(link => {
+        // Remove active class from all nav links (both old and new nav)
+        document.querySelectorAll('.main-nav a, .nav-section a').forEach(link => {
             link.classList.remove('active');
         });
         
@@ -125,10 +87,30 @@ class SikaBuApp {
             selectedTab.classList.add('active');
         }
         
-        // Activate nav link
+        // Activate nav link (both old and new nav)
         const selectedNavLink = document.querySelector(`[data-tab="${tabName}"]`);
         if (selectedNavLink) {
             selectedNavLink.classList.add('active');
+        }
+        
+        // Update page title if modern header exists
+        const pageTitle = document.getElementById('current-page-title');
+        const tabTitles = {
+            'dashboard': 'Dashboard Overview',
+            'booking': 'Manajemen Booking',
+            'checkin': 'Check-in & Check-out',
+            'payment': 'Manajemen Pembayaran',
+            'housekeeping': 'Manajemen Housekeeping',
+            'rooms': 'Konfigurasi Kamar & Harga',
+            'guests': 'Database Tamu',
+            'calendar': 'Kalender Booking',
+            'finance': 'Manajemen Keuangan',
+            'reports': 'Laporan & Analisis',
+            'data': 'Export & Import Data'
+        };
+        
+        if (pageTitle && tabTitles[tabName]) {
+            pageTitle.textContent = tabTitles[tabName];
         }
         
         this.currentTab = tabName;

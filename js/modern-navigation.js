@@ -30,26 +30,32 @@ function initModernNavigation() {
             
             const targetTab = this.getAttribute('data-tab');
             
-            // Remove active class from all links
-            navLinks.forEach(l => l.classList.remove('active'));
-            
-            // Add active class to clicked link
-            this.classList.add('active');
-            
-            // Hide all tab contents
-            tabContents.forEach(content => {
-                content.classList.remove('active');
-            });
-            
-            // Show target tab content
-            const targetContent = document.getElementById(targetTab);
-            if (targetContent) {
-                targetContent.classList.add('active');
-            }
-            
-            // Update page title
-            if (pageTitle && tabTitles[targetTab]) {
-                pageTitle.textContent = tabTitles[targetTab];
+            // Use global showTab function if available (from app.js)
+            if (window.sikabuApp && typeof window.sikabuApp.showTab === 'function') {
+                window.sikabuApp.showTab(targetTab);
+            } else {
+                // Fallback: direct tab switching
+                // Remove active class from all links
+                navLinks.forEach(l => l.classList.remove('active'));
+                
+                // Add active class to clicked link
+                this.classList.add('active');
+                
+                // Hide all tab contents
+                tabContents.forEach(content => {
+                    content.classList.remove('active');
+                });
+                
+                // Show target tab content
+                const targetContent = document.getElementById(targetTab);
+                if (targetContent) {
+                    targetContent.classList.add('active');
+                }
+                
+                // Update page title
+                if (pageTitle && tabTitles[targetTab]) {
+                    pageTitle.textContent = tabTitles[targetTab];
+                }
             }
             
             // Close sidebar on mobile after selection
@@ -59,7 +65,7 @@ function initModernNavigation() {
         });
     });
     
-    // Mobile menu toggle (jika diperlukan nanti)
+    // Mobile menu toggle
     const mobileToggle = document.createElement('button');
     mobileToggle.className = 'mobile-menu-toggle btn btn-icon';
     mobileToggle.innerHTML = '<i class="fas fa-bars"></i>';
@@ -75,7 +81,10 @@ function initModernNavigation() {
     function checkScreenSize() {
         if (window.innerWidth <= 1024) {
             mobileToggle.style.display = 'flex';
-            document.querySelector('.header-actions').prepend(mobileToggle);
+            const headerActions = document.querySelector('.header-actions');
+            if (headerActions && !headerActions.contains(mobileToggle)) {
+                headerActions.prepend(mobileToggle);
+            }
         } else {
             mobileToggle.style.display = 'none';
             document.querySelector('.sidebar').classList.remove('open');
@@ -92,7 +101,7 @@ function initModernNavigation() {
         const toggle = mobileToggle;
         
         if (window.innerWidth <= 1024 && 
-            sidebar.classList.contains('open') && 
+            sidebar && sidebar.classList.contains('open') && 
             !sidebar.contains(e.target) && 
             !toggle.contains(e.target)) {
             sidebar.classList.remove('open');
