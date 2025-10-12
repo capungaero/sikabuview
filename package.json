@@ -1,0 +1,18 @@
+{
+  "name": "sikabuview",
+  "version": "1.0.0",
+  "description": "Sistem Manajemen Penginapan Villa & Camping Ground",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx http-server . -p 8080 -c-1",
+    "dev": "npx http-server . -p 3000 -c-1 -o",
+    "build": "echo 'Static app - no build needed'",
+    "deploy": "echo 'Ready for static deployment'"
+  },
+  "keywords": ["penginapan", "booking", "villa", "camping"],
+  "author": "SikaBu Team",
+  "license": "MIT",
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  }
+}

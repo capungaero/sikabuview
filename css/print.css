@@ -1,0 +1,185 @@
+/* Print Styles */
+@media print {
+    /* Hide non-essential elements */
+    header,
+    .main-nav,
+    .module-actions,
+    .form-container,
+    .table-filters,
+    .btn,
+    .action-btn,
+    .modal {
+        display: none !important;
+    }
+    
+    /* Reset page margins */
+    body {
+        margin: 0;
+        padding: 20px;
+        font-family: Arial, sans-serif;
+        font-size: 12px;
+        line-height: 1.4;
+        color: #000;
+        background: white;
+    }
+    
+    .container {
+        max-width: none;
+        margin: 0;
+        padding: 0;
+    }
+    
+    /* Print header */
+    .print-header {
+        display: block !important;
+        text-align: center;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 2px solid #000;
+    }
+    
+    .print-header h1 {
+        font-size: 24px;
+        margin-bottom: 10px;
+        color: #000;
+    }
+    
+    .print-header p {
+        font-size: 14px;
+        margin: 5px 0;
+    }
+    
+    /* Show only active tab content */
+    .tab-content {
+        display: block !important;
+    }
+    
+    .tab-content:not(.active) {
+        display: none !important;
+    }
+    
+    /* Table styles for print */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+        page-break-inside: auto;
+    }
+    
+    table th,
+    table td {
+        border: 1px solid #000;
+        padding: 8px;
+        text-align: left;
+        font-size: 11px;
+    }
+    
+    table th {
+        background-color: #f0f0f0;
+        font-weight: bold;
+    }
+    
+    /* Page breaks */
+    .page-break {
+        page-break-before: always;
+    }
+    
+    .no-break {
+        page-break-inside: avoid;
+    }
+    
+    /* Summary sections */
+    .print-summary {
+        margin: 20px 0;
+        padding: 15px;
+        border: 1px solid #000;
+        background-color: #f9f9f9;
+    }
+    
+    .print-summary h3 {
+        margin: 0 0 10px 0;
+        font-size: 16px;
+    }
+    
+    .print-summary .summary-row {
+        display: flex;
+        justify-content: space-between;
+        margin: 5px 0;
+        font-size: 12px;
+    }
+    
+    .print-summary .total-row {
+        border-top: 1px solid #000;
+        padding-top: 5px;
+        margin-top: 10px;
+        font-weight: bold;
+    }
+    
+    /* Finance cards for print */
+    .finance-cards {
+        display: flex !important;
+        justify-content: space-between;
+        margin: 20px 0;
+    }
+    
+    .finance-card {
+        flex: 1;
+        margin: 0 10px;
+        padding: 15px;
+        border: 1px solid #000;
+        text-align: center;
+    }
+    
+    .finance-card h3 {
+        font-size: 12px;
+        margin-bottom: 10px;
+    }
+    
+    .finance-card .amount {
+        font-size: 18px;
+        font-weight: bold;
+    }
+    
+    /* Status badges */
+    .status-badge {
+        padding: 2px 6px;
+        border: 1px solid #000;
+        border-radius: 0;
+        font-size: 10px;
+        background: white !important;
+        color: #000 !important;
+    }
+    
+    /* Footer */
+    .print-footer {
+        position: fixed;
+        bottom: 20px;
+        left: 0;
+        right: 0;
+        text-align: center;
+        font-size: 10px;
+        border-top: 1px solid #000;
+        padding-top: 10px;
+    }
+    
+    /* Hide elements that shouldn't be printed */
+    .no-print {
+        display: none !important;
+    }
+    
+    /* Force black text for better printing */
+    * {
+        color: #000 !important;
+    }
+}
+
+/* Print-specific classes */
+.print-only {
+    display: none;
+}
+
+@media print {
+    .print-only {
+        display: block !important;
+    }
+}
