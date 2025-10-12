@@ -1,0 +1,1399 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Sikabuview - Manajemen Penginapan</title>
+    <link rel="stylesheet" href="css/style-new.css">
+    <link rel="stylesheet" href="css/print.css" media="print">
+    <!-- Font Awesome untuk icon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fas fa-mountain"></i>
+                    <h1>Sikabuview</h1>
+                </div>
+                <p class="tagline">Manajemen Penginapan</p>
+            </div>
+            
+            <div class="nav-menu">
+                <!-- Dashboard -->
+                <div class="nav-section">
+                    <h3><i class="fas fa-chart-line"></i> Dashboard</h3>
+                    <ul>
+                        <li><a href="#dashboard" data-tab="dashboard" class="active"><i class="fas fa-home"></i> Overview</a></li>
+                    </ul>
+                </div>
+
+                <!-- Operations -->
+                <div class="nav-section">
+                    <h3><i class="fas fa-cogs"></i> Operasional</h3>
+                    <ul>
+                        <li><a href="#booking" data-tab="booking"><i class="fas fa-calendar-plus"></i> Booking</a></li>
+                        <li><a href="#checkin" data-tab="checkin"><i class="fas fa-door-open"></i> Check-in/out</a></li>
+                        <li><a href="#payment" data-tab="payment"><i class="fas fa-credit-card"></i> Pembayaran</a></li>
+                        <li><a href="#housekeeping" data-tab="housekeeping"><i class="fas fa-broom"></i> Housekeeping</a></li>
+                    </ul>
+                </div>
+
+                <!-- Management -->
+                <div class="nav-section">
+                    <h3><i class="fas fa-database"></i> Manajemen</h3>
+                    <ul>
+                        <li><a href="#rooms" data-tab="rooms"><i class="fas fa-bed"></i> Kamar & Harga</a></li>
+                        <li><a href="#guests" data-tab="guests"><i class="fas fa-users"></i> Data Tamu</a></li>
+                        <li><a href="#calendar" data-tab="calendar"><i class="fas fa-calendar-alt"></i> Kalender</a></li>
+                    </ul>
+                </div>
+
+                <!-- Reports & Finance -->
+                <div class="nav-section">
+                    <h3><i class="fas fa-chart-bar"></i> Laporan</h3>
+                    <ul>
+                        <li><a href="#finance" data-tab="finance"><i class="fas fa-coins"></i> Keuangan</a></li>
+                        <li><a href="#reports" data-tab="reports"><i class="fas fa-file-alt"></i> Laporan</a></li>
+                        <li><a href="#data" data-tab="data"><i class="fas fa-download"></i> Data Management</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="content-header">
+                <h2 id="current-page-title">Dashboard Overview</h2>
+                <div class="header-actions">
+                    <button class="btn btn-icon" title="Refresh">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                    <button class="btn btn-icon" title="Settings">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="content-wrapper">
+                <!-- Dashboard Tab -->
+                <section id="dashboard" class="tab-content active">
+                    <div class="dashboard-cards">
+                        <div class="card stat-card">
+                            <div class="card-icon blue">
+                                <i class="fas fa-calendar-check"></i>
+                            </div>
+                            <div class="card-content">
+                                <h3>Booking Hari Ini</h3>
+                                <p class="stat-number" id="today-bookings">0</p>
+                            </div>
+                        </div>
+                        <div class="card stat-card">
+                            <div class="card-icon green">
+                                <i class="fas fa-money-bill-wave"></i>
+                            </div>
+                            <div class="card-content">
+                                <h3>Pendapatan Bulan Ini</h3>
+                                <p class="stat-number" id="monthly-income">Rp 0</p>
+                            </div>
+                        </div>
+                        <div class="card stat-card">
+                            <div class="card-icon orange">
+                                <i class="fas fa-door-open"></i>
+                            </div>
+                            <div class="card-content">
+                                <h3>Kamar Terisi</h3>
+                                <p class="stat-number" id="occupied-rooms">0</p>
+                            </div>
+                        </div>
+                        <div class="card stat-card">
+                            <div class="card-icon purple">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="card-content">
+                                <h3>Total Tamu</h3>
+                                <p class="stat-number" id="total-guests">0</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-grid">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3><i class="fas fa-chart-line"></i> Grafik Pendapatan</h3>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="revenue-chart" width="400" height="200"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">
+                                <h3><i class="fas fa-list"></i> Aktivitas Terbaru</h3>
+                            </div>
+                            <div class="card-body">
+                                <div id="recent-activities">
+                                    <!-- Aktivitas akan dimuat di sini -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+        <!-- Booking Tab -->
+        <section id="booking" class="tab-content">
+            <div class="module-header">
+                <h2>Modul Booking</h2>
+                <div class="module-actions">
+                    <button class="btn btn-primary" onclick="showAddBookingForm()">Tambah Booking</button>
+                    <button class="btn btn-secondary" onclick="printBookingReport()">Cetak Laporan</button>
+                </div>
+            </div>
+
+            <!-- Add Booking Form -->
+            <div id="booking-form" class="form-container" style="display: none;">
+                <h3>Tambah Booking Baru</h3>
+                <form id="add-booking-form">
+                    <div class="form-group">
+                        <label for="guest-id">ID Tamu</label>
+                        <input type="text" id="guest-id" name="guestId" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="guest-name">Nama Tamu</label>
+                        <input type="text" id="guest-name" name="guestName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="guest-phone">No. Telepon</label>
+                        <input type="tel" id="guest-phone" name="guestPhone" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="booking-date">Tanggal Booking</label>
+                        <input type="date" id="booking-date" name="bookingDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="checkin-date">Tanggal Check-in</label>
+                        <input type="date" id="checkin-date" name="checkinDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="checkout-date">Tanggal Check-out</label>
+                        <input type="date" id="checkout-date" name="checkoutDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="booking-type">Jenis Pesanan</label>
+                        <select id="booking-type" name="bookingType" required>
+                            <option value="">Pilih Jenis Pesanan</option>
+                            <option value="kamar">Kamar</option>
+                            <option value="villa">Villa</option>
+                            <option value="tenda">Tenda</option>
+                            <option value="camping">Sewa Camping Ground</option>
+                            <option value="all">Sewa Seluruh Lokasi</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="booking-quantity">Jumlah</label>
+                        <input type="number" id="booking-quantity" name="quantity" min="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="booking-price">Harga per Unit</label>
+                        <input type="number" id="booking-price" name="price" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="booking-notes">Catatan Khusus</label>
+                        <textarea id="booking-notes" name="notes" rows="3"></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Simpan Booking</button>
+                        <button type="button" class="btn btn-secondary" onclick="hideAddBookingForm()">Batal</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Booking List -->
+            <div class="data-table">
+                <h3>Daftar Booking</h3>
+                <div class="table-filters">
+                    <input type="text" id="booking-search" placeholder="Cari booking..." onkeyup="filterBookings()">
+                    <select id="booking-filter-type" onchange="filterBookings()">
+                        <option value="">Semua Jenis</option>
+                        <option value="kamar">Kamar</option>
+                        <option value="villa">Villa</option>
+                        <option value="tenda">Tenda</option>
+                        <option value="camping">Camping Ground</option>
+                        <option value="all">Seluruh Lokasi</option>
+                    </select>
+                    <select id="booking-filter-status" onchange="filterBookings()">
+                        <option value="">Semua Status</option>
+                        <option value="pending">Pending</option>
+                        <option value="confirmed">Confirmed</option>
+                        <option value="checkedin">Checked In</option>
+                        <option value="checkedout">Checked Out</option>
+                        <option value="cancelled">Cancelled</option>
+                    </select>
+                </div>
+                <table id="booking-table">
+                    <thead>
+                        <tr>
+                            <th>ID Booking</th>
+                            <th>Tamu</th>
+                            <th>Tanggal Booking</th>
+                            <th>Check-in/out</th>
+                            <th>Jenis</th>
+                            <th>Jumlah</th>
+                            <th>Total Harga</th>
+                            <th>Status</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="booking-list">
+                        <!-- Booking data will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Payment Tab -->
+        <section id="payment" class="tab-content">
+            <div class="module-header">
+                <h2>Modul Pembayaran</h2>
+                <div class="module-actions">
+                    <button class="btn btn-secondary" onclick="printPaymentReport()">Cetak Laporan</button>
+                </div>
+            </div>
+
+            <!-- Payment Form -->
+            <div class="payment-section">
+                <h3>Checkout Pembayaran</h3>
+                <div class="payment-form">
+                    <div class="form-group">
+                        <label for="payment-booking-id">Pilih Booking</label>
+                        <select id="payment-booking-id" onchange="loadBookingForPayment()">
+                            <option value="">Pilih booking untuk checkout</option>
+                        </select>
+                    </div>
+                    
+                    <div id="payment-details" style="display: none;">
+                        <div class="booking-summary">
+                            <h4>Detail Booking</h4>
+                            <div id="booking-summary-content"></div>
+                        </div>
+
+                        <div class="additional-orders">
+                            <h4>Pesanan Tambahan</h4>
+                            <div class="form-group">
+                                <label for="additional-item">Item</label>
+                                <select id="additional-item">
+                                    <option value="">Pilih item tambahan</option>
+                                    <option value="makanan">Makanan</option>
+                                    <option value="bbq">BBQ</option>
+                                    <option value="minuman">Minuman</option>
+                                    <option value="laundry">Laundry</option>
+                                    <option value="transport">Transport</option>
+                                    <option value="lainnya">Lainnya</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="additional-description">Deskripsi</label>
+                                <input type="text" id="additional-description" placeholder="Deskripsi item">
+                            </div>
+                            <div class="form-group">
+                                <label for="additional-price">Harga</label>
+                                <input type="number" id="additional-price" min="0" placeholder="0">
+                            </div>
+                            <button type="button" class="btn btn-small" onclick="addAdditionalOrder()">Tambah Item</button>
+                            
+                            <div id="additional-orders-list" class="additional-list">
+                                <!-- Additional orders will be listed here -->
+                            </div>
+                        </div>
+
+                        <div class="payment-summary">
+                            <h4>Ringkasan Pembayaran</h4>
+                            <div class="summary-line">
+                                <span>Biaya Penginapan:</span>
+                                <span id="accommodation-cost">Rp 0</span>
+                            </div>
+                            <div class="summary-line">
+                                <span>Biaya Tambahan:</span>
+                                <span id="additional-cost">Rp 0</span>
+                            </div>
+                            <div class="summary-line total">
+                                <span>Total Pembayaran:</span>
+                                <span id="total-payment">Rp 0</span>
+                            </div>
+                        </div>
+
+                        <div class="payment-method">
+                            <h4>Metode Pembayaran</h4>
+                            <div class="form-group">
+                                <select id="payment-method">
+                                    <option value="cash">Tunai</option>
+                                    <option value="transfer">Transfer Bank</option>
+                                    <option value="debit">Kartu Debit</option>
+                                    <option value="credit">Kartu Kredit</option>
+                                    <option value="digital">Digital Payment</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="payment-notes">Catatan Pembayaran</label>
+                                <textarea id="payment-notes" rows="2" placeholder="Catatan optional"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-primary" onclick="processPayment()">Proses Pembayaran</button>
+                            <button type="button" class="btn btn-secondary" onclick="clearPaymentForm()">Reset</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment History -->
+            <div class="data-table">
+                <h3>Riwayat Pembayaran</h3>
+                <div class="table-filters">
+                    <input type="text" id="payment-search" placeholder="Cari pembayaran..." onkeyup="filterPayments()">
+                    <input type="date" id="payment-date-from" onchange="filterPayments()">
+                    <input type="date" id="payment-date-to" onchange="filterPayments()">
+                </div>
+                <table id="payment-table">
+                    <thead>
+                        <tr>
+                            <th>ID Pembayaran</th>
+                            <th>ID Booking</th>
+                            <th>Tamu</th>
+                            <th>Tanggal</th>
+                            <th>Biaya Penginapan</th>
+                            <th>Biaya Tambahan</th>
+                            <th>Total</th>
+                            <th>Metode</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="payment-list">
+                        <!-- Payment data will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Finance Tab -->
+        <section id="finance" class="tab-content">
+            <div class="module-header">
+                <h2>Modul Keuangan</h2>
+                <div class="module-actions">
+                    <button class="btn btn-primary" onclick="showAddExpenseForm()">Tambah Pengeluaran</button>
+                    <button class="btn btn-secondary" onclick="printFinanceReport()">Cetak Laporan</button>
+                </div>
+            </div>
+
+            <!-- Financial Summary -->
+            <div class="finance-summary">
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-calendar-alt"></i> Periode Laporan</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="summary-period">
+                            <label for="finance-period">Periode:</label>
+                            <select id="finance-period" onchange="updateFinanceSummary()">
+                                <option value="today">Hari Ini</option>
+                                <option value="week">Minggu Ini</option>
+                                <option value="month" selected>Bulan Ini</option>
+                                <option value="year">Tahun Ini</option>
+                                <option value="custom">Custom</option>
+                            </select>
+                            <div id="custom-period" style="display: none;">
+                                <input type="date" id="finance-date-from">
+                                <input type="date" id="finance-date-to">
+                                <button type="button" class="btn btn-small" onclick="updateFinanceSummary()">
+                                    <i class="fas fa-sync-alt"></i> Update
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="finance-cards">
+                    <div class="finance-card income">
+                        <div class="finance-icon">
+                            <i class="fas fa-arrow-up"></i>
+                        </div>
+                        <div class="finance-content">
+                            <h3>Total Pendapatan</h3>
+                            <p class="amount" id="total-income">Rp 12,500,000</p>
+                            <small id="income-count"><i class="fas fa-chart-line"></i> 45 transaksi</small>
+                        </div>
+                    </div>
+                    <div class="finance-card expense">
+                        <div class="finance-icon">
+                            <i class="fas fa-arrow-down"></i>
+                        </div>
+                        <div class="finance-content">
+                            <h3>Total Pengeluaran</h3>
+                            <p class="amount" id="total-expense">Rp 3,200,000</p>
+                            <small id="expense-count"><i class="fas fa-shopping-cart"></i> 23 transaksi</small>
+                        </div>
+                    </div>
+                    <div class="finance-card profit">
+                        <div class="finance-icon">
+                            <i class="fas fa-coins"></i>
+                        </div>
+                        <div class="finance-content">
+                            <h3>Keuntungan Bersih</h3>
+                            <p class="amount" id="net-profit">Rp 9,300,000</p>
+                            <small id="profit-margin"><i class="fas fa-percentage"></i> 74.4% margin</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add Expense Form -->
+            <div id="expense-form" class="form-container" style="display: none;">
+                <h3>Tambah Pengeluaran</h3>
+                <form id="add-expense-form">
+                    <div class="form-group">
+                        <label for="expense-date">Tanggal</label>
+                        <input type="date" id="expense-date" name="expenseDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="expense-category">Kategori</label>
+                        <select id="expense-category" name="category" required>
+                            <option value="">Pilih Kategori</option>
+                            <option value="maintenance">Maintenance</option>
+                            <option value="utilities">Utilities (Listrik, Air)</option>
+                            <option value="supplies">Supplies</option>
+                            <option value="food">Makanan</option>
+                            <option value="staff">Gaji Staff</option>
+                            <option value="marketing">Marketing</option>
+                            <option value="equipment">Peralatan</option>
+                            <option value="other">Lainnya</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="expense-description">Deskripsi</label>
+                        <input type="text" id="expense-description" name="description" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="expense-amount">Jumlah</label>
+                        <input type="number" id="expense-amount" name="amount" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="expense-notes">Catatan</label>
+                        <textarea id="expense-notes" name="notes" rows="2"></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Simpan Pengeluaran</button>
+                        <button type="button" class="btn btn-secondary" onclick="hideAddExpenseForm()">Batal</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Transactions List -->
+            <div class="finance-tabs">
+                <div class="tab-buttons">
+                    <button class="tab-btn active" onclick="showFinanceTab('income')">Pendapatan</button>
+                    <button class="tab-btn" onclick="showFinanceTab('expense')">Pengeluaran</button>
+                    <button class="tab-btn" onclick="showFinanceTab('all')">Semua Transaksi</button>
+                </div>
+
+                <div id="income-tab" class="finance-tab-content active">
+                    <h3>Riwayat Pendapatan</h3>
+                    <table id="income-table">
+                        <thead>
+                            <tr>
+                                <th>Tanggal</th>
+                                <th>ID Pembayaran</th>
+                                <th>Tamu</th>
+                                <th>Jenis</th>
+                                <th>Jumlah</th>
+                                <th>Sumber</th>
+                            </tr>
+                        </thead>
+                        <tbody id="income-list">
+                            <!-- Income data will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div id="expense-tab" class="finance-tab-content">
+                    <h3>Riwayat Pengeluaran</h3>
+                    <table id="expense-table">
+                        <thead>
+                            <tr>
+                                <th>Tanggal</th>
+                                <th>Kategori</th>
+                                <th>Deskripsi</th>
+                                <th>Jumlah</th>
+                                <th>Catatan</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="expense-list">
+                            <!-- Expense data will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div id="all-tab" class="finance-tab-content">
+                    <h3>Semua Transaksi</h3>
+                    <table id="all-transactions-table">
+                        <thead>
+                            <tr>
+                                <th>Tanggal</th>
+                                <th>Tipe</th>
+                                <th>Deskripsi</th>
+                                <th>Masuk</th>
+                                <th>Keluar</th>
+                                <th>Saldo</th>
+                            </tr>
+                        </thead>
+                        <tbody id="all-transactions-list">
+                            <!-- All transactions will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Rooms & Pricing Tab -->
+        <section id="rooms" class="tab-content">
+            <div class="module-header">
+                <h2>Konfigurasi Kamar & Harga</h2>
+                <div class="module-actions">
+                    <button class="btn btn-primary" onclick="showAddRoomForm()">Tambah Kamar/Villa</button>
+                    <button class="btn btn-secondary" onclick="printRoomList()">Cetak Daftar</button>
+                </div>
+            </div>
+
+            <!-- Add Room Form -->
+            <div id="room-form" class="form-container" style="display: none;">
+                <h3>Tambah/Edit Kamar/Villa</h3>
+                <form id="add-room-form">
+                    <div class="form-group">
+                        <label for="room-type">Tipe Akomodasi:</label>
+                        <select id="room-type" required>
+                            <option value="">Pilih Tipe</option>
+                            <option value="kamar">Kamar</option>
+                            <option value="villa">Villa</option>
+                            <option value="camping">Area Camping</option>
+                            <option value="tent">Tenda</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="room-number">Nomor/Nama:</label>
+                        <input type="text" id="room-number" placeholder="Contoh: 101, Villa A, Camp Area 1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="room-capacity">Kapasitas:</label>
+                        <input type="number" id="room-capacity" min="1" max="20" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="room-price">Harga per Malam (Rp):</label>
+                        <input type="number" id="room-price" min="0" step="5000" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="room-facilities">Fasilitas:</label>
+                        <textarea id="room-facilities" placeholder="AC, TV, Kamar Mandi Dalam, WiFi, dll"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="room-description">Deskripsi:</label>
+                        <textarea id="room-description" placeholder="Deskripsi detail kamar/villa"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="room-status">Status:</label>
+                        <select id="room-status" required>
+                            <option value="available">Tersedia</option>
+                            <option value="maintenance">Maintenance</option>
+                            <option value="cleaning">Cleaning</option>
+                            <option value="out-of-order">Out of Order</option>
+                        </select>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Simpan</button>
+                        <button type="button" class="btn btn-secondary" onclick="hideRoomForm()">Batal</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Rooms List -->
+            <div class="rooms-list">
+                <div class="filter-bar">
+                    <select id="room-type-filter" onchange="filterRooms()">
+                        <option value="">Semua Tipe</option>
+                        <option value="kamar">Kamar</option>
+                        <option value="villa">Villa</option>
+                        <option value="camping">Area Camping</option>
+                        <option value="tent">Tenda</option>
+                    </select>
+                    <select id="room-status-filter" onchange="filterRooms()">
+                        <option value="">Semua Status</option>
+                        <option value="available">Tersedia</option>
+                        <option value="occupied">Terisi</option>
+                        <option value="maintenance">Maintenance</option>
+                        <option value="cleaning">Cleaning</option>
+                        <option value="out-of-order">Out of Order</option>
+                    </select>
+                </div>
+                <div id="rooms-container" class="rooms-grid">
+                    <!-- Rooms will be loaded here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Guests Management Tab -->
+        <section id="guests" class="tab-content">
+            <div class="module-header">
+                <h2>Data Tamu</h2>
+                <div class="module-actions">
+                    <button class="btn btn-primary" onclick="showAddGuestForm()">Registrasi Tamu</button>
+                    <button class="btn btn-secondary" onclick="printGuestList()">Cetak Daftar</button>
+                </div>
+            </div>
+
+            <!-- Add Guest Form -->
+            <div id="guest-form" class="form-container" style="display: none;">
+                <h3>Registrasi Tamu Baru</h3>
+                <form id="add-guest-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="guest-id">ID Tamu:</label>
+                            <input type="text" id="guest-id" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="guest-name">Nama Lengkap:</label>
+                            <input type="text" id="guest-name" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="guest-id-card">No. KTP/Identitas:</label>
+                            <input type="text" id="guest-id-card" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="guest-phone">No. Telepon:</label>
+                            <input type="tel" id="guest-phone" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="guest-email">Email:</label>
+                        <input type="email" id="guest-email">
+                    </div>
+                    <div class="form-group">
+                        <label for="guest-address">Alamat:</label>
+                        <textarea id="guest-address" required></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="guest-company">Perusahaan/Instansi:</label>
+                            <input type="text" id="guest-company">
+                        </div>
+                        <div class="form-group">
+                            <label for="guest-purpose">Tujuan Kunjungan:</label>
+                            <select id="guest-purpose">
+                                <option value="leisure">Liburan</option>
+                                <option value="business">Bisnis</option>
+                                <option value="family">Keluarga</option>
+                                <option value="event">Event</option>
+                                <option value="other">Lainnya</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="guest-notes">Catatan Khusus:</label>
+                        <textarea id="guest-notes" placeholder="Alergi, permintaan khusus, dll"></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Simpan Tamu</button>
+                        <button type="button" class="btn btn-secondary" onclick="hideGuestForm()">Batal</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Guests List -->
+            <div class="guests-list">
+                <div class="search-bar">
+                    <input type="text" id="guest-search" placeholder="Cari tamu..." onkeyup="searchGuests()">
+                    <select id="guest-filter" onchange="filterGuests()">
+                        <option value="">Semua Tamu</option>
+                        <option value="current">Tamu Aktif</option>
+                        <option value="vip">VIP</option>
+                        <option value="regular">Regular</option>
+                    </select>
+                </div>
+                <div id="guests-container" class="table-container">
+                    <!-- Guests table will be loaded here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Calendar & Availability Tab -->
+        <section id="calendar" class="tab-content">
+            <div class="module-header">
+                <h2><i class="fas fa-calendar-alt"></i> Kalender Ketersediaan</h2>
+                <div class="module-actions">
+                    <button class="btn btn-primary" onclick="showCalendarView('month')">
+                        <i class="fas fa-calendar"></i> Bulan
+                    </button>
+                    <button class="btn btn-secondary" onclick="showCalendarView('week')">
+                        <i class="fas fa-calendar-week"></i> Minggu
+                    </button>
+                    <button class="btn btn-info" onclick="refreshCalendar()">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
+            </div>
+
+            <div class="calendar-container">
+                <div class="calendar-header">
+                    <button class="btn-nav" onclick="navigateCalendar(-1)" title="Bulan Sebelumnya">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <h3 id="calendar-title">Oktober 2025</h3>
+                    <button class="btn-nav" onclick="navigateCalendar(1)" title="Bulan Berikutnya">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+                
+                <div class="legend">
+                    <span class="legend-item available">
+                        <i class="fas fa-circle"></i> Tersedia
+                    </span>
+                    <span class="legend-item booked">
+                        <i class="fas fa-circle"></i> Terisi
+                    </span>
+                    <span class="legend-item maintenance">
+                        <i class="fas fa-circle"></i> Maintenance
+                    </span>
+                    <span class="legend-item checkout">
+                        <i class="fas fa-circle"></i> Check-out
+                    </span>
+                    <span class="legend-item checkin">
+                        <i class="fas fa-circle"></i> Check-in
+                    </span>
+                </div>
+
+                <div class="calendar-days-header">
+                    <div class="calendar-day-header">Sen</div>
+                    <div class="calendar-day-header">Sel</div>
+                    <div class="calendar-day-header">Rab</div>
+                    <div class="calendar-day-header">Kam</div>
+                    <div class="calendar-day-header">Jum</div>
+                    <div class="calendar-day-header">Sab</div>
+                    <div class="calendar-day-header">Min</div>
+                </div>
+
+                <div id="calendar-grid" class="calendar-grid">
+                    <!-- Calendar will be generated here by JavaScript -->
+                    <div class="calendar-day other-month">
+                        <div class="calendar-day-number">30</div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="calendar-day-number">1</div>
+                        <div class="calendar-booking">Kamar 101</div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="calendar-day-number">2</div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="calendar-day-number">3</div>
+                        <div class="calendar-booking">Villa A</div>
+                        <div class="calendar-booking">Kamar 102</div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="calendar-day-number">4</div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="calendar-day-number">5</div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="calendar-day-number">6</div>
+                    </div>
+                    <!-- More days will be generated by JavaScript -->
+                </div>
+            </div>
+
+            <div class="room-availability">
+                <h3><i class="fas fa-bed"></i> Ketersediaan Kamar Hari Ini</h3>
+                <div id="today-availability" class="availability-grid">
+                    <div class="availability-item available">
+                        <h4>Kamar 101</h4>
+                        <p>Standard Room</p>
+                        <span class="status-badge available">Tersedia</span>
+                    </div>
+                    <div class="availability-item occupied">
+                        <h4>Kamar 102</h4>
+                        <p>Deluxe Room</p>
+                        <span class="status-badge occupied">Terisi</span>
+                    </div>
+                    <div class="availability-item available">
+                        <h4>Villa A</h4>
+                        <p>Family Villa</p>
+                        <span class="status-badge available">Tersedia</span>
+                    </div>
+                    <div class="availability-item maintenance">
+                        <h4>Kamar 103</h4>
+                        <p>Standard Room</p>
+                        <span class="status-badge maintenance">Maintenance</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Check-in/Check-out Tab -->
+        <section id="checkin" class="tab-content">
+            <div class="module-header">
+                <h2>Check-in & Check-out</h2>
+                <div class="module-actions">
+                    <button class="btn btn-primary" onclick="showQuickCheckin()">Quick Check-in</button>
+                    <button class="btn btn-secondary" onclick="showQuickCheckout()">Quick Check-out</button>
+                </div>
+            </div>
+
+            <div class="checkin-tabs">
+                <button class="tab-btn active" onclick="showCheckinTab('checkin')">Check-in Hari Ini</button>
+                <button class="tab-btn" onclick="showCheckinTab('checkout')">Check-out Hari Ini</button>
+                <button class="tab-btn" onclick="showCheckinTab('current')">Tamu Aktif</button>
+            </div>
+
+            <!-- Check-in Form -->
+            <div id="quick-checkin-form" class="form-container" style="display: none;">
+                <h3>Quick Check-in</h3>
+                <form id="checkin-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="checkin-booking">Booking ID:</label>
+                            <input type="text" id="checkin-booking" placeholder="Masukkan Booking ID" required>
+                            <button type="button" class="btn btn-small" onclick="searchBooking()">Cari</button>
+                        </div>
+                        <div class="form-group">
+                            <label for="checkin-time">Waktu Check-in:</label>
+                            <input type="datetime-local" id="checkin-time" required>
+                        </div>
+                    </div>
+                    <div id="booking-details" class="booking-info" style="display: none;">
+                        <!-- Booking details will be shown here -->
+                    </div>
+                    <div class="form-group">
+                        <label for="checkin-notes">Catatan Check-in:</label>
+                        <textarea id="checkin-notes" placeholder="Kondisi kamar, kunci diberikan, dll"></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Proses Check-in</button>
+                        <button type="button" class="btn btn-secondary" onclick="hideCheckinForm()">Batal</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Check-out Form -->
+            <div id="quick-checkout-form" class="form-container" style="display: none;">
+                <h3>Quick Check-out</h3>
+                <form id="checkout-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="checkout-room">Kamar/Villa:</label>
+                            <select id="checkout-room" required>
+                                <option value="">Pilih Kamar yang Check-out</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="checkout-time">Waktu Check-out:</label>
+                            <input type="datetime-local" id="checkout-time" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="checkout-condition">Kondisi Kamar:</label>
+                        <select id="checkout-condition" required>
+                            <option value="good">Baik</option>
+                            <option value="need-cleaning">Perlu Dibersihkan</option>
+                            <option value="maintenance">Perlu Maintenance</option>
+                            <option value="damaged">Ada Kerusakan</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="checkout-notes">Catatan Check-out:</label>
+                        <textarea id="checkout-notes" placeholder="Kondisi kamar, barang tertinggal, dll"></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Proses Check-out</button>
+                        <button type="button" class="btn btn-secondary" onclick="hideCheckoutForm()">Batal</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Check-in/Check-out Lists -->
+            <div id="checkin-content" class="checkin-content">
+                <div id="checkin-list" class="checkin-tab-content active">
+                    <h3>Daftar Check-in Hari Ini</h3>
+                    <div id="today-checkins" class="checkin-list">
+                        <!-- Today's check-ins -->
+                    </div>
+                </div>
+                
+                <div id="checkout-list" class="checkin-tab-content">
+                    <h3>Daftar Check-out Hari Ini</h3>
+                    <div id="today-checkouts" class="checkout-list">
+                        <!-- Today's check-outs -->
+                    </div>
+                </div>
+                
+                <div id="current-guests" class="checkin-tab-content">
+                    <h3>Tamu yang Sedang Menginap</h3>
+                    <div id="active-guests" class="active-guests-list">
+                        <!-- Current guests -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Housekeeping Tab -->
+        <section id="housekeeping" class="tab-content">
+            <div class="module-header">
+                <h2>Housekeeping & Maintenance</h2>
+                <div class="module-actions">
+                    <button class="btn btn-primary" onclick="showAddTaskForm()">Tambah Tugas</button>
+                    <button class="btn btn-secondary" onclick="printHousekeepingReport()">Cetak Laporan</button>
+                </div>
+            </div>
+
+            <div class="housekeeping-tabs">
+                <button class="tab-btn active" onclick="showHousekeepingTab('cleaning')">Cleaning Schedule</button>
+                <button class="tab-btn" onclick="showHousekeepingTab('maintenance')">Maintenance</button>
+                <button class="tab-btn" onclick="showHousekeepingTab('inventory')">Inventory</button>
+            </div>
+
+            <!-- Add Task Form -->
+            <div id="task-form" class="form-container" style="display: none;">
+                <h3>Tambah Tugas Housekeeping</h3>
+                <form id="add-task-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="task-type">Jenis Tugas:</label>
+                            <select id="task-type" required>
+                                <option value="cleaning">Cleaning</option>
+                                <option value="maintenance">Maintenance</option>
+                                <option value="inspection">Inspeksi</option>
+                                <option value="inventory">Inventory Check</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="task-room">Kamar/Area:</label>
+                            <select id="task-room" required>
+                                <option value="">Pilih Kamar/Area</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="task-priority">Prioritas:</label>
+                            <select id="task-priority" required>
+                                <option value="low">Rendah</option>
+                                <option value="normal">Normal</option>
+                                <option value="high">Tinggi</option>
+                                <option value="urgent">Mendesak</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="task-assignee">Petugas:</label>
+                            <input type="text" id="task-assignee" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="task-description">Deskripsi Tugas:</label>
+                        <textarea id="task-description" required></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="task-due-date">Target Selesai:</label>
+                            <input type="datetime-local" id="task-due-date" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="task-status">Status:</label>
+                            <select id="task-status" required>
+                                <option value="pending">Pending</option>
+                                <option value="in-progress">Dikerjakan</option>
+                                <option value="completed">Selesai</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Simpan Tugas</button>
+                        <button type="button" class="btn btn-secondary" onclick="hideTaskForm()">Batal</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Housekeeping Content -->
+            <div id="housekeeping-content" class="housekeeping-content">
+                <div id="cleaning-schedule" class="housekeeping-tab-content active">
+                    <div class="schedule-grid" id="cleaning-schedule-grid">
+                        <!-- Cleaning schedule -->
+                    </div>
+                </div>
+                
+                <div id="maintenance-tasks" class="housekeeping-tab-content">
+                    <div class="tasks-list" id="maintenance-tasks-list">
+                        <!-- Maintenance tasks -->
+                    </div>
+                </div>
+                
+                <div id="inventory-check" class="housekeeping-tab-content">
+                    <div class="inventory-grid" id="inventory-grid">
+                        <!-- Inventory items -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Reports Tab -->
+        <section id="reports" class="tab-content">
+            <div class="module-header">
+                <h2><i class="fas fa-chart-bar"></i> Laporan & Analytics</h2>
+                <div class="module-actions">
+                    <button class="btn btn-primary" onclick="generateReport()">
+                        <i class="fas fa-chart-line"></i> Generate Laporan
+                    </button>
+                    <button class="btn btn-secondary" onclick="printAllReports()">
+                        <i class="fas fa-print"></i> Cetak Semua
+                    </button>
+                    <button class="btn btn-info" onclick="exportReports()">
+                        <i class="fas fa-download"></i> Export Excel
+                    </button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3><i class="fas fa-filter"></i> Filter Laporan</h3>
+                </div>
+                <div class="card-body">
+                    <div class="reports-filter">
+                        <div class="filter-group">
+                            <label for="report-period">Periode:</label>
+                            <select id="report-period" onchange="updateReportPeriod()">
+                                <option value="today">Hari Ini</option>
+                                <option value="week">Minggu Ini</option>
+                                <option value="month" selected>Bulan Ini</option>
+                                <option value="quarter">Kuartal Ini</option>
+                                <option value="year">Tahun Ini</option>
+                                <option value="custom">Custom</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="report-start">Dari:</label>
+                            <input type="date" id="report-start">
+                        </div>
+                        <div class="filter-group">
+                            <label for="report-end">Sampai:</label>
+                            <input type="date" id="report-end">
+                        </div>
+                        <div class="filter-group">
+                            <button class="btn btn-primary" onclick="updateReportData()">
+                                <i class="fas fa-sync-alt"></i> Update Data
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="reports-grid">
+                <div class="report-card">
+                    <div class="report-icon occupancy">
+                        <i class="fas fa-percentage"></i>
+                    </div>
+                    <div class="report-content">
+                        <h3>Occupancy Rate</h3>
+                        <div class="stat-large" id="occupancy-rate">85%</div>
+                        <div class="stat-detail">
+                            <span><i class="fas fa-bed"></i> Kamar Terisi: <span id="occupied-rooms">17</span></span>
+                            <span><i class="fas fa-home"></i> Total Kamar: <span id="total-rooms">20</span></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="report-card">
+                    <div class="report-icon revenue">
+                        <i class="fas fa-money-bill-wave"></i>
+                    </div>
+                    <div class="report-content">
+                        <h3>Revenue per Room (RevPAR)</h3>
+                        <div class="stat-large" id="revpar">Rp 475,000</div>
+                        <div class="stat-detail">
+                            <span><i class="fas fa-coins"></i> Total Revenue: <span id="total-revenue">Rp 9,500,000</span></span>
+                            <span><i class="fas fa-calendar"></i> Available Rooms: <span id="available-room-nights">20</span></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="report-card">
+                    <div class="report-icon adr">
+                        <i class="fas fa-calculator"></i>
+                    </div>
+                    <div class="report-content">
+                        <h3>Average Daily Rate (ADR)</h3>
+                        <div class="stat-large" id="adr">Rp 558,000</div>
+                        <div class="stat-detail">
+                            <span><i class="fas fa-money-bill"></i> Total Revenue: <span id="adr-revenue">Rp 9,500,000</span></span>
+                            <span><i class="fas fa-door-open"></i> Rooms Sold: <span id="rooms-sold">17</span></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="report-card">
+                    <div class="report-icon booking">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <div class="report-content">
+                        <h3>Total Bookings</h3>
+                        <div class="stat-large" id="total-bookings">124</div>
+                        <div class="stat-detail">
+                            <span><i class="fas fa-check"></i> Confirmed: <span id="confirmed-bookings">98</span></span>
+                            <span><i class="fas fa-clock"></i> Pending: <span id="pending-bookings">26</span></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="charts-section">
+                <div class="chart-card">
+                    <h3><i class="fas fa-chart-line"></i> Trend Pendapatan</h3>
+                    <canvas id="revenue-trend-chart" height="300"></canvas>
+                </div>
+                
+                <div class="chart-card">
+                    <h3><i class="fas fa-chart-pie"></i> Distribusi Jenis Kamar</h3>
+                    <canvas id="room-type-chart" height="300"></canvas>
+                </div>
+            </div>
+
+            <div class="detailed-reports">
+                <div class="report-section">
+                    <h3><i class="fas fa-file-alt"></i> Laporan Detail</h3>
+                    <div class="report-tabs">
+                        <button class="tab-btn active" onclick="showReportTab('booking-report')">
+                            <i class="fas fa-calendar"></i> Booking
+                        </button>
+                        <button class="tab-btn" onclick="showReportTab('financial-report')">
+                            <i class="fas fa-dollar-sign"></i> Keuangan
+                        </button>
+                        <button class="tab-btn" onclick="showReportTab('guest-report')">
+                            <i class="fas fa-users"></i> Tamu
+                        </button>
+                    </div>
+                    
+                    <div id="booking-report" class="report-tab-content active">
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Tamu</th>
+                                        <th>Check-in</th>
+                                        <th>Check-out</th>
+                                        <th>Kamar</th>
+                                        <th>Total</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="booking-report-data">
+                                    <!-- Data will be populated by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div id="financial-report" class="report-tab-content">
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Tanggal</th>
+                                        <th>Jenis</th>
+                                        <th>Deskripsi</th>
+                                        <th>Pendapatan</th>
+                                        <th>Pengeluaran</th>
+                                        <th>Net</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="financial-report-data">
+                                    <!-- Data will be populated by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div id="guest-report" class="report-tab-content">
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Nama</th>
+                                        <th>Total Booking</th>
+                                        <th>Total Spent</th>
+                                        <th>Last Visit</th>
+                                        <th>Rating</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="guest-report-data">
+                                    <!-- Data will be populated by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Data Management Tab -->
+        <section id="data" class="tab-content">
+            <div class="module-header">
+                <h2><i class="fas fa-database"></i> Data Management</h2>
+                <div class="module-actions">
+                    <button class="btn btn-info" onclick="checkDatabaseStatus()">
+                        <i class="fas fa-sync-alt"></i> Refresh Status
+                    </button>
+                </div>
+            </div>
+
+            <div class="data-management">
+                <div class="data-grid">
+                    <div class="data-card">
+                        <div class="data-icon backup">
+                            <i class="fas fa-download"></i>
+                        </div>
+                        <div class="data-content">
+                            <h3>Backup & Restore</h3>
+                            <p>Export dan import semua data dalam format JSON</p>
+                            <div class="data-actions">
+                                <button class="btn btn-primary" onclick="exportData()">
+                                    <i class="fas fa-download"></i> Export Data
+                                </button>
+                                <button class="btn btn-secondary" onclick="document.getElementById('import-file').click()">
+                                    <i class="fas fa-upload"></i> Import Data
+                                </button>
+                                <input type="file" id="import-file" accept=".json" style="display: none;" onchange="importData(this)">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="data-card">
+                        <div class="data-icon status">
+                            <i class="fas fa-server"></i>
+                        </div>
+                        <div class="data-content">
+                            <h3>Database Status</h3>
+                            <div class="db-status">
+                                <div class="status-item">
+                                    <i class="fas fa-wifi"></i>
+                                    <span>Status Koneksi: <strong id="db-status">Connected</strong></span>
+                                </div>
+                                <div class="status-item">
+                                    <i class="fas fa-cog"></i>
+                                    <span>Mode Database: <strong id="db-mode">IndexedDB</strong></span>
+                                </div>
+                                <div class="status-item">
+                                    <i class="fas fa-chart-bar"></i>
+                                    <span>Total Records: <strong id="total-records">245</strong></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="data-card danger">
+                        <div class="data-icon reset">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="data-content">
+                            <h3>Reset Data</h3>
+                            <div class="danger-zone">
+                                <p class="warning">
+                                    <i class="fas fa-warning"></i>
+                                    <strong>Peringatan:</strong> Tindakan ini akan menghapus semua data secara permanen!
+                                </p>
+                                <button class="btn btn-danger" onclick="confirmResetData()">
+                                    <i class="fas fa-trash-alt"></i> Reset Semua Data
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="data-summary">
+                    <h3><i class="fas fa-chart-pie"></i> Ringkasan Data</h3>
+                    <div class="summary-grid">
+                        <div class="summary-item">
+                            <div class="summary-icon bookings">
+                                <i class="fas fa-calendar-check"></i>
+                            </div>
+                            <div class="summary-content">
+                                <h4>Bookings</h4>
+                                <span class="summary-count" id="bookings-count">124</span>
+                            </div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-icon guests">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="summary-content">
+                                <h4>Guests</h4>
+                                <span class="summary-count" id="guests-count">89</span>
+                            </div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-icon rooms">
+                                <i class="fas fa-bed"></i>
+                            </div>
+                            <div class="summary-content">
+                                <h4>Rooms</h4>
+                                <span class="summary-count" id="rooms-count">20</span>
+                            </div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-icon payments">
+                                <i class="fas fa-credit-card"></i>
+                            </div>
+                            <div class="summary-content">
+                                <h4>Payments</h4>
+                                <span class="summary-count" id="payments-count">98</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal for confirmations -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">Konfirmasi</h3>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p id="modal-message">Apakah Anda yakin?</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" id="modal-confirm">Ya</button>
+                <button class="btn btn-secondary" onclick="closeModal()">Batal</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/modern-navigation.js"></script>
+    <script src="js/database.js"></script>
+    <script src="js/booking.js"></script>
+    <script src="js/payment.js"></script>
+    <script src="js/finance.js"></script>
+    <script src="js/print.js"></script>
+    <script src="js/advanced-features.js"></script>
+    <script src="js/reports-housekeeping.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

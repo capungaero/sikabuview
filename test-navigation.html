@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Navigation Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-results { background: #f0f0f0; padding: 15px; margin: 10px 0; border-radius: 5px; }
+        .pass { color: green; }
+        .fail { color: red; }
+        .menu-item { margin: 5px 0; padding: 10px; background: #e0e0e0; cursor: pointer; }
+        .menu-item:hover { background: #d0d0d0; }
+    </style>
+</head>
+<body>
+    <h1>Sikabuview Navigation Test</h1>
+    
+    <h2>Menu Items Test</h2>
+    <div id="menu-tests">
+        <p>Loading tests...</p>
+    </div>
+    
+    <h2>Manual Test</h2>
+    <p>Click each menu item below to test navigation:</p>
+    <div id="manual-test">
+        <div class="menu-item" onclick="testNavigation('dashboard')">📊 Dashboard</div>
+        <div class="menu-item" onclick="testNavigation('booking')">📅 Booking</div>
+        <div class="menu-item" onclick="testNavigation('checkin')">🚪 Check-in/out</div>
+        <div class="menu-item" onclick="testNavigation('payment')">💳 Payment</div>
+        <div class="menu-item" onclick="testNavigation('housekeeping')">🧹 Housekeeping</div>
+        <div class="menu-item" onclick="testNavigation('rooms')">🏨 Rooms</div>
+        <div class="menu-item" onclick="testNavigation('guests')">👥 Guests</div>
+        <div class="menu-item" onclick="testNavigation('calendar')">📅 Calendar</div>
+        <div class="menu-item" onclick="testNavigation('finance')">💰 Finance</div>
+        <div class="menu-item" onclick="testNavigation('reports')">📊 Reports</div>
+        <div class="menu-item" onclick="testNavigation('data')">💾 Data Management</div>
+    </div>
+    
+    <div id="test-results"></div>
+
+    <script>
+        const menuItems = [
+            'dashboard', 'booking', 'checkin', 'payment', 'housekeeping',
+            'rooms', 'guests', 'calendar', 'finance', 'reports', 'data'
+        ];
+        
+        function runTests() {
+            const resultsDiv = document.getElementById('menu-tests');
+            let results = '';
+            
+            results += '<h3>Automated Tests:</h3>';
+            
+            // Test 1: Check if all menu items exist in main app
+            const parentWindow = window.parent || window;
+            const mainDoc = parentWindow.document;
+            
+            menuItems.forEach(item => {
+                const menuElement = mainDoc.querySelector(`[data-tab="${item}"]`);
+                const sectionElement = mainDoc.querySelector(`#${item}`);
+                
+                if (menuElement && sectionElement) {
+                    results += `<div class="pass">✅ ${item}: Menu and section exist</div>`;
+                } else {
+                    results += `<div class="fail">❌ ${item}: Missing ${!menuElement ? 'menu' : ''} ${!sectionElement ? 'section' : ''}</div>`;
+                }
+            });
+            
+            resultsDiv.innerHTML = results;
+        }
+        
+        function testNavigation(tabName) {
+            const resultDiv = document.getElementById('test-results');
+            
+            // Try to access parent window's navigation function
+            const parentWindow = window.parent || window;
+            
+            if (parentWindow.sikabuApp && parentWindow.sikabuApp.showTab) {
+                try {
+                    parentWindow.sikabuApp.showTab(tabName);
+                    resultDiv.innerHTML = `<div class="test-results pass">✅ Successfully navigated to ${tabName}</div>`;
+                } catch (error) {
+                    resultDiv.innerHTML = `<div class="test-results fail">❌ Error navigating to ${tabName}: ${error.message}</div>`;
+                }
+            } else {
+                resultDiv.innerHTML = `<div class="test-results fail">❌ Navigation function not available</div>`;
+            }
+        }
+        
+        // Run tests when page loads
+        setTimeout(runTests, 1000);
+    </script>
+</body>
+</html>

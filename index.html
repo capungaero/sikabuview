@@ -161,7 +161,130 @@
                     </div>
                 </div>
 
+                <!-- Add Booking Form -->
+                <div id="booking-form" class="form-container" style="display: none;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Tambah Booking Baru</h3>
+                            <button class="btn btn-secondary" onclick="hideAddBookingForm()">
+                                <i class="fas fa-times"></i> Batal
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <form id="add-booking-form">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="guest-id">ID Tamu</label>
+                                        <input type="text" id="guest-id" name="guestId" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="guest-name">Nama Tamu</label>
+                                        <input type="text" id="guest-name" name="guestName" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="guest-phone">No. Telepon</label>
+                                        <input type="tel" id="guest-phone" name="guestPhone" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="booking-date">Tanggal Booking</label>
+                                        <input type="date" id="booking-date" name="bookingDate" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="checkin-date">Check-in</label>
+                                        <input type="date" id="checkin-date" name="checkinDate" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="checkout-date">Check-out</label>
+                                        <input type="date" id="checkout-date" name="checkoutDate" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="booking-type">Jenis Akomodasi</label>
+                                        <select id="booking-type" name="bookingType" required>
+                                            <option value="">Pilih Jenis</option>
+                                            <option value="kamar">Kamar</option>
+                                            <option value="villa">Villa</option>
+                                            <option value="camping">Camping Ground</option>
+                                            <option value="tent">Tenda</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="booking-quantity">Jumlah</label>
+                                        <input type="number" id="booking-quantity" name="quantity" min="1" value="1" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="booking-price">Harga per Unit (Rp)</label>
+                                        <input type="number" id="booking-price" name="price" min="0" step="5000" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Total Harga</label>
+                                        <input type="text" id="booking-total" readonly>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="booking-notes">Catatan</label>
+                                    <textarea id="booking-notes" name="notes" rows="3"></textarea>
+                                </div>
+                                
+                                <div class="form-actions">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save"></i> Simpan Booking
+                                    </button>
+                                    <button type="button" class="btn btn-secondary" onclick="hideAddBookingForm()">
+                                        <i class="fas fa-times"></i> Batal
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filter Section -->
                 <div class="card">
+                    <div class="card-body">
+                        <div class="filter-row">
+                            <div class="form-group">
+                                <label for="filter-status">Filter Status:</label>
+                                <select id="filter-status" onchange="filterBookings()">
+                                    <option value="">Semua Status</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="confirmed">Confirmed</option>
+                                    <option value="checkedin">Checked-in</option>
+                                    <option value="checkedout">Checked-out</option>
+                                    <option value="cancelled">Cancelled</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="filter-type">Filter Jenis:</label>
+                                <select id="filter-type" onchange="filterBookings()">
+                                    <option value="">Semua Jenis</option>
+                                    <option value="kamar">Kamar</option>
+                                    <option value="villa">Villa</option>
+                                    <option value="camping">Camping Ground</option>
+                                    <option value="tent">Tenda</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Booking Table -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-list"></i> Daftar Booking</h3>
+                    </div>
                     <div class="card-body">
                         <div class="table-container">
                             <table id="booking-table">
@@ -169,16 +292,18 @@
                                     <tr>
                                         <th>ID</th>
                                         <th>Tamu</th>
-                                        <th>Check-in</th>
-                                        <th>Check-out</th>
-                                        <th>Kamar</th>
+                                        <th>Tanggal Booking</th>
+                                        <th>Check-in / Check-out</th>
+                                        <th>Jenis</th>
+                                        <th>Jumlah</th>
+                                        <th>Total</th>
                                         <th>Status</th>
                                         <th>Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody id="booking-list">
                                     <tr>
-                                        <td colspan="7" class="text-center">Tidak ada data booking</td>
+                                        <td colspan="9" class="text-center">Tidak ada data booking</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -300,7 +425,7 @@
                 <div class="module-header">
                     <h2><i class="fas fa-calendar-alt"></i> Kalender Ketersediaan</h2>
                     <div class="module-actions">
-                        <button class="btn btn-primary">
+                        <button class="btn btn-primary" onclick="refreshCalendar()">
                             <i class="fas fa-sync-alt"></i> Refresh
                         </button>
                     </div>
@@ -308,10 +433,64 @@
 
                 <div class="card">
                     <div class="card-header">
-                        <h3><i class="fas fa-calendar"></i> Kalender Booking</h3>
+                        <div class="calendar-controls">
+                            <button class="btn btn-secondary" onclick="previousMonth()">
+                                <i class="fas fa-chevron-left"></i> Bulan Sebelumnya
+                            </button>
+                            <h3 id="calendar-month-year"></h3>
+                            <button class="btn btn-secondary" onclick="nextMonth()">
+                                Bulan Berikutnya <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
                     </div>
                     <div class="card-body">
-                        <p>Kalender ketersediaan kamar akan ditampilkan di sini</p>
+                        <div id="calendar-container">
+                            <div class="calendar-grid">
+                                <div class="calendar-days-header">
+                                    <div class="calendar-day-name">Minggu</div>
+                                    <div class="calendar-day-name">Senin</div>
+                                    <div class="calendar-day-name">Selasa</div>
+                                    <div class="calendar-day-name">Rabu</div>
+                                    <div class="calendar-day-name">Kamis</div>
+                                    <div class="calendar-day-name">Jumat</div>
+                                    <div class="calendar-day-name">Sabtu</div>
+                                </div>
+                                <div id="calendar-days" class="calendar-days">
+                                    <!-- Calendar days will be generated here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Booking Legend -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-info-circle"></i> Keterangan</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="calendar-legend">
+                            <div class="legend-item">
+                                <span class="legend-color" style="background: #4CAF50;"></span>
+                                <span>Tersedia</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-color" style="background: #FF9800;"></span>
+                                <span>Booking Pending</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-color" style="background: #2196F3;"></span>
+                                <span>Confirmed</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-color" style="background: #9C27B0;"></span>
+                                <span>Checked-in</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-color" style="background: #F44336;"></span>
+                                <span>Penuh</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>
