@@ -714,6 +714,21 @@ class DatabaseManager {
     }
 }
 
+// Global utility function to wait for database to be ready
+async function waitForDatabase() {
+    if (window.dbManager && window.dbManager.isReady) {
+        return;
+    }
+    
+    // Wait for dbManager to exist
+    while (!window.dbManager) {
+        await new Promise(resolve => setTimeout(resolve, 50));
+    }
+    
+    // Wait for dbManager to be ready
+    await window.dbManager.readyPromise;
+}
+
 // Initialize global database instance and wait for it to be ready
 (async function() {
     window.dbManager = new DatabaseManager();
