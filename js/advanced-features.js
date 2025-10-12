@@ -19,10 +19,8 @@ class RoomsManager {
 
     async loadRooms() {
         try {
-            // Wait for database to be available
-            while (!window.dbManager) {
-                await new Promise(resolve => setTimeout(resolve, 100));
-            }
+            await waitForDatabase();
+            
             try {
                 this.rooms = await window.dbManager.select('rooms') || [];
             } catch (error) {
@@ -230,10 +228,8 @@ class GuestsManager {
 
     async loadGuests() {
         try {
-            // Wait for database to be available
-            while (!window.dbManager) {
-                await new Promise(resolve => setTimeout(resolve, 100));
-            }
+            await waitForDatabase();
+            
             try {
                 this.guests = await window.dbManager.select('guests') || [];
             } catch (error) {
@@ -398,10 +394,8 @@ class CalendarManager {
 
     async loadData() {
         try {
-            // Wait for database to be available
-            while (!window.dbManager) {
-                await new Promise(resolve => setTimeout(resolve, 100));
-            }
+            await waitForDatabase();
+            
             try {
                 this.bookings = await window.dbManager.select('bookings') || [];
             } catch (error) {
@@ -577,10 +571,8 @@ class CheckInOutManager {
 
     async loadData() {
         try {
-            // Wait for database to be available
-            while (!window.dbManager) {
-                await new Promise(resolve => setTimeout(resolve, 100));
-            }
+            await waitForDatabase();
+            
             try {
                 this.bookings = await window.dbManager.select('bookings') || [];
             } catch (error) {
@@ -851,6 +843,21 @@ function formatCurrency(amount) {
         currency: 'IDR',
         minimumFractionDigits: 0
     }).format(amount);
+}
+
+// Utility function to wait for database to be ready
+async function waitForDatabase() {
+    let attempts = 0;
+    while ((!window.dbManager || !window.dbManager.isReady) && attempts < 50) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+        attempts++;
+    }
+    
+    if (!window.dbManager || !window.dbManager.isReady) {
+        throw new Error('Database not ready after waiting');
+    }
+    
+    return window.dbManager;
 }
 
 function showAddRoomForm() {

@@ -10,9 +10,11 @@ class DatabaseManager {
         this.isOnline = navigator.onLine;
         this.dbName = 'sikabuview_db';
         this.dbVersion = 2; // Increment version to trigger upgrade
+        this.isReady = false;
+        this.readyPromise = null;
         
         // Initialize database
-        this.init();
+        this.readyPromise = this.init();
         
         // Listen for online/offline events
         window.addEventListener('online', () => {
@@ -34,6 +36,8 @@ class DatabaseManager {
             console.log('SQLite not available, switching to IndexedDB');
             await this.initIndexedDB();
         }
+        this.isReady = true;
+        return this;
     }
     
     async initSQLite() {
@@ -96,6 +100,7 @@ class DatabaseManager {
 
         // Add default rooms if none exist
         this.initializeDefaultData();
+        this.isReady = true;
     }
 
     async initializeDefaultData() {
@@ -318,6 +323,11 @@ class DatabaseManager {
     // Generic CRUD operations
     async insert(table, data) {
         try {
+            // Wait for database to be ready
+            if (!this.isReady) {
+                await this.readyPromise;
+            }
+            
             switch (this.dbType) {
                 case 'sqlite':
                     return await this.insertSQLite(table, data);
@@ -336,6 +346,11 @@ class DatabaseManager {
     
     async select(table, conditions = {}, orderBy = null, limit = null) {
         try {
+            // Wait for database to be ready
+            if (!this.isReady) {
+                await this.readyPromise;
+            }
+            
             switch (this.dbType) {
                 case 'sqlite':
                     return await this.selectSQLite(table, conditions, orderBy, limit);
@@ -354,6 +369,11 @@ class DatabaseManager {
     
     async update(table, id, data) {
         try {
+            // Wait for database to be ready
+            if (!this.isReady) {
+                await this.readyPromise;
+            }
+            
             switch (this.dbType) {
                 case 'sqlite':
                     return await this.updateSQLite(table, id, data);
@@ -372,6 +392,11 @@ class DatabaseManager {
     
     async delete(table, id) {
         try {
+            // Wait for database to be ready
+            if (!this.isReady) {
+                await this.readyPromise;
+            }
+            
             switch (this.dbType) {
                 case 'sqlite':
                     return await this.deleteSQLite(table, id);
@@ -683,10 +708,15 @@ class DatabaseManager {
         return {
             type: this.dbType,
             online: this.isOnline,
-            connected: this.db !== null || this.dbType === 'localstorage'
+            connected: this.db !== null || this.dbType === 'localstorage',
+            ready: this.isReady
         };
     }
 }
 
-// Initialize global database instance
-window.dbManager = new DatabaseManager();
+// Initialize global database instance and wait for it to be ready
+(async function() {
+    window.dbManager = new DatabaseManager();
+    await window.dbManager.readyPromise;
+    console.log('Database manager ready:', window.dbManager.getStatus());
+})();

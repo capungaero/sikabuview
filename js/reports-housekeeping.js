@@ -21,10 +21,8 @@ class HousekeepingManager {
 
     async loadTasks() {
         try {
-            // Wait for database to be available
-            while (!window.dbManager) {
-                await new Promise(resolve => setTimeout(resolve, 100));
-            }
+            await waitForDatabase();
+            
             try {
                 this.tasks = await window.dbManager.select('tasks') || [];
             } catch (error) {
@@ -41,10 +39,8 @@ class HousekeepingManager {
 
     async loadInventory() {
         try {
-            // Wait for database to be available
-            while (!window.dbManager) {
-                await new Promise(resolve => setTimeout(resolve, 100));
-            }
+            await waitForDatabase();
+            
             try {
                 this.inventory = await window.dbManager.select('inventory') || [];
             } catch (error) {
@@ -292,10 +288,7 @@ class ReportsManager {
 
     async loadData() {
         try {
-            // Wait for database to be available
-            while (!window.dbManager) {
-                await new Promise(resolve => setTimeout(resolve, 100));
-            }
+            await waitForDatabase();
             
             // Load data with fallback for missing tables
             try {
