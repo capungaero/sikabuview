@@ -115,13 +115,13 @@ class SikaBuApp {
         
         this.currentTab = tabName;
         
-        // Update data when switching to specific tabs
+        // Update data only when switching to specific tabs that need it
         if (tabName === 'dashboard' && this.managers.booking) {
             this.managers.booking.updateDashboardStats();
         } else if (tabName === 'payment' && this.managers.booking) {
             this.managers.booking.updatePaymentBookingDropdown();
         } else if (tabName === 'finance' && this.managers.finance) {
-            this.managers.finance.updateFinanceSummary();
+            this.managers.finance.loadFinanceData();
         }
     }
     

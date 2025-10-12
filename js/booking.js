@@ -359,6 +359,11 @@ class BookingManager {
     }
     
     async updateDashboardStats() {
+        // Only update if we're on dashboard tab
+        if (window.sikabuApp && window.sikabuApp.currentTab !== 'dashboard') {
+            return;
+        }
+        
         // Update today's bookings
         const today = new Date().toISOString().split('T')[0];
         const todayBookings = this.currentBookings.filter(booking => 
@@ -368,18 +373,6 @@ class BookingManager {
         const todayBookingsElement = document.getElementById('today-bookings');
         if (todayBookingsElement) {
             todayBookingsElement.textContent = todayBookings;
-        }
-        
-        // Update available rooms/villas (mock data for now)
-        const availableRoomsElement = document.getElementById('available-rooms');
-        const availableVillasElement = document.getElementById('available-villas');
-        
-        if (availableRoomsElement) {
-            availableRoomsElement.textContent = '10'; // Mock data
-        }
-        
-        if (availableVillasElement) {
-            availableVillasElement.textContent = '3'; // Mock data
         }
         
         // Update recent bookings
