@@ -23,7 +23,12 @@ class RoomsManager {
             while (!window.dbManager) {
                 await new Promise(resolve => setTimeout(resolve, 100));
             }
-            this.rooms = await window.dbManager.select('rooms') || [];
+            try {
+                this.rooms = await window.dbManager.select('rooms') || [];
+            } catch (error) {
+                console.warn('Rooms table not found, using empty array');
+                this.rooms = [];
+            }
             this.renderRoomsList();
             this.updateRoomOptions();
         } catch (error) {
@@ -229,7 +234,12 @@ class GuestsManager {
             while (!window.dbManager) {
                 await new Promise(resolve => setTimeout(resolve, 100));
             }
-            this.guests = await window.dbManager.select('guests') || [];
+            try {
+                this.guests = await window.dbManager.select('guests') || [];
+            } catch (error) {
+                console.warn('Guests table not found, using empty array');
+                this.guests = [];
+            }
             this.renderGuestsList();
         } catch (error) {
             console.error('Error loading guests:', error);
@@ -392,8 +402,18 @@ class CalendarManager {
             while (!window.dbManager) {
                 await new Promise(resolve => setTimeout(resolve, 100));
             }
-            this.bookings = await window.dbManager.select('bookings') || [];
-            this.rooms = await window.dbManager.select('rooms') || [];
+            try {
+                this.bookings = await window.dbManager.select('bookings') || [];
+            } catch (error) {
+                console.warn('Bookings table not found, using empty array');
+                this.bookings = [];
+            }
+            try {
+                this.rooms = await window.dbManager.select('rooms') || [];
+            } catch (error) {
+                console.warn('Rooms table not found, using empty array');
+                this.rooms = [];
+            }
         } catch (error) {
             console.error('Error loading calendar data:', error);
             this.bookings = [];
@@ -561,8 +581,18 @@ class CheckInOutManager {
             while (!window.dbManager) {
                 await new Promise(resolve => setTimeout(resolve, 100));
             }
-            this.bookings = await window.dbManager.select('bookings') || [];
-            this.rooms = await window.dbManager.select('rooms') || [];
+            try {
+                this.bookings = await window.dbManager.select('bookings') || [];
+            } catch (error) {
+                console.warn('Bookings table not found, using empty array');
+                this.bookings = [];
+            }
+            try {
+                this.rooms = await window.dbManager.select('rooms') || [];
+            } catch (error) {
+                console.warn('Rooms table not found, using empty array');
+                this.rooms = [];
+            }
             this.renderTodayActivities();
         } catch (error) {
             console.error('Error loading check-in/out data:', error);

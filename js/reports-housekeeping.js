@@ -25,7 +25,12 @@ class HousekeepingManager {
             while (!window.dbManager) {
                 await new Promise(resolve => setTimeout(resolve, 100));
             }
-            this.tasks = await window.dbManager.select('tasks') || [];
+            try {
+                this.tasks = await window.dbManager.select('tasks') || [];
+            } catch (error) {
+                console.warn('Tasks table not found, using empty array');
+                this.tasks = [];
+            }
             this.renderCleaningSchedule();
             this.renderMaintenanceTasks();
         } catch (error) {
@@ -40,7 +45,12 @@ class HousekeepingManager {
             while (!window.dbManager) {
                 await new Promise(resolve => setTimeout(resolve, 100));
             }
-            this.inventory = await window.dbManager.select('inventory') || [];
+            try {
+                this.inventory = await window.dbManager.select('inventory') || [];
+            } catch (error) {
+                console.warn('Inventory table not found, using empty array');
+                this.inventory = [];
+            }
             this.renderInventory();
         } catch (error) {
             console.error('Error loading inventory:', error);
@@ -286,10 +296,35 @@ class ReportsManager {
             while (!window.dbManager) {
                 await new Promise(resolve => setTimeout(resolve, 100));
             }
-            this.bookings = await window.dbManager.select('bookings') || [];
-            this.payments = await window.dbManager.select('payments') || [];
-            this.expenses = await window.dbManager.select('expenses') || [];
-            this.rooms = await window.dbManager.select('rooms') || [];
+            
+            // Load data with fallback for missing tables
+            try {
+                this.bookings = await window.dbManager.select('bookings') || [];
+            } catch (error) {
+                console.warn('Bookings table not found, using empty array');
+                this.bookings = [];
+            }
+            
+            try {
+                this.payments = await window.dbManager.select('payments') || [];
+            } catch (error) {
+                console.warn('Payments table not found, using empty array');
+                this.payments = [];
+            }
+            
+            try {
+                this.expenses = await window.dbManager.select('expenses') || [];
+            } catch (error) {
+                console.warn('Expenses table not found, using empty array');
+                this.expenses = [];
+            }
+            
+            try {
+                this.rooms = await window.dbManager.select('rooms') || [];
+            } catch (error) {
+                console.warn('Rooms table not found, using empty array');
+                this.rooms = [];
+            }
         } catch (error) {
             console.error('Error loading reports data:', error);
             this.bookings = [];

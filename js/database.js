@@ -9,7 +9,7 @@ class DatabaseManager {
         this.db = null;
         this.isOnline = navigator.onLine;
         this.dbName = 'sikabuview_db';
-        this.dbVersion = 1;
+        this.dbVersion = 2; // Increment version to trigger upgrade
         
         // Initialize database
         this.init();
@@ -70,6 +70,8 @@ class DatabaseManager {
                 this.db = event.target.result;
                 this.dbType = 'indexeddb';
                 console.log('Connected to IndexedDB');
+                // Initialize default data after connection
+                this.initializeDefaultData();
                 resolve();
             };
             
@@ -85,12 +87,78 @@ class DatabaseManager {
         console.log('Using localStorage');
         
         // Initialize localStorage structure if not exists
-        const tables = ['bookings', 'payments', 'expenses', 'settings'];
+        const tables = ['bookings', 'payments', 'expenses', 'settings', 'rooms', 'guests', 'tasks', 'inventory'];
         tables.forEach(table => {
             if (!localStorage.getItem(table)) {
                 localStorage.setItem(table, JSON.stringify([]));
             }
         });
+
+        // Add default rooms if none exist
+        this.initializeDefaultData();
+    }
+
+    async initializeDefaultData() {
+        try {
+            // Check if rooms already exist
+            const rooms = await this.select('rooms');
+            if (!rooms || rooms.length === 0) {
+                // Add default rooms
+                const defaultRooms = [
+                    {
+                        id: 'RM001',
+                        type: 'kamar',
+                        number: '101',
+                        capacity: 2,
+                        price: 150000,
+                        facilities: 'AC, TV, Kamar Mandi Dalam',
+                        description: 'Kamar standar dengan fasilitas lengkap',
+                        status: 'available',
+                        createdAt: new Date().toISOString()
+                    },
+                    {
+                        id: 'RM002',
+                        type: 'kamar',
+                        number: '102',
+                        capacity: 2,
+                        price: 150000,
+                        facilities: 'AC, TV, Kamar Mandi Dalam',
+                        description: 'Kamar standar dengan fasilitas lengkap',
+                        status: 'available',
+                        createdAt: new Date().toISOString()
+                    },
+                    {
+                        id: 'VL001',
+                        type: 'villa',
+                        number: 'Villa A',
+                        capacity: 6,
+                        price: 500000,
+                        facilities: 'AC, TV, Dapur, Ruang Tamu, 2 Kamar Tidur',
+                        description: 'Villa keluarga dengan fasilitas lengkap',
+                        status: 'available',
+                        createdAt: new Date().toISOString()
+                    },
+                    {
+                        id: 'CP001',
+                        type: 'camping',
+                        number: 'Camp Area 1',
+                        capacity: 4,
+                        price: 50000,
+                        facilities: 'Area Tenda, Listrik, Kamar Mandi Umum',
+                        description: 'Area camping dengan fasilitas dasar',
+                        status: 'available',
+                        createdAt: new Date().toISOString()
+                    }
+                ];
+
+                for (const room of defaultRooms) {
+                    await this.insert('rooms', room);
+                }
+                console.log('Default rooms initialized');
+            }
+        } catch (error) {
+            console.error('Error initializing default data:', error);
+        }
     }
     
     createIndexedDBStores(db) {
@@ -128,6 +196,50 @@ class DatabaseManager {
         // Settings store
         if (!db.objectStoreNames.contains('settings')) {
             db.createObjectStore('settings', { keyPath: 'key' });
+        }
+
+        // Rooms store
+        if (!db.objectStoreNames.contains('rooms')) {
+            const roomStore = db.createObjectStore('rooms', { 
+                keyPath: 'id',
+                autoIncrement: false 
+            });
+            roomStore.createIndex('type', 'type', { unique: false });
+            roomStore.createIndex('status', 'status', { unique: false });
+            roomStore.createIndex('number', 'number', { unique: true });
+        }
+
+        // Guests store
+        if (!db.objectStoreNames.contains('guests')) {
+            const guestStore = db.createObjectStore('guests', { 
+                keyPath: 'id',
+                autoIncrement: false 
+            });
+            guestStore.createIndex('name', 'name', { unique: false });
+            guestStore.createIndex('phone', 'phone', { unique: false });
+            guestStore.createIndex('idCard', 'idCard', { unique: true });
+        }
+
+        // Tasks store (for housekeeping)
+        if (!db.objectStoreNames.contains('tasks')) {
+            const taskStore = db.createObjectStore('tasks', { 
+                keyPath: 'id',
+                autoIncrement: false 
+            });
+            taskStore.createIndex('type', 'type', { unique: false });
+            taskStore.createIndex('status', 'status', { unique: false });
+            taskStore.createIndex('priority', 'priority', { unique: false });
+            taskStore.createIndex('roomId', 'roomId', { unique: false });
+        }
+
+        // Inventory store
+        if (!db.objectStoreNames.contains('inventory')) {
+            const inventoryStore = db.createObjectStore('inventory', { 
+                keyPath: 'id',
+                autoIncrement: false 
+            });
+            inventoryStore.createIndex('item', 'item', { unique: false });
+            inventoryStore.createIndex('category', 'category', { unique: false });
         }
     }
     
