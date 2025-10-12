@@ -15,12 +15,6 @@ class FinanceManager {
     }
     
     async init() {
-        // Wait for database to be ready
-        if (!window.dbManager) {
-            setTimeout(() => this.init(), 100);
-            return;
-        }
-        
         await this.loadFinanceData();
         this.setupEventListeners();
         this.updateFinanceSummary();
@@ -591,4 +585,9 @@ window.showFinanceTab = (tabName) => {
 };
 
 // Initialize finance manager
-window.financeManager = new FinanceManager();
+// Initialize FinanceManager after database is ready
+waitForDatabase().then(() => {
+    window.financeManager = new FinanceManager();
+}).catch(error => {
+    console.error('Failed to initialize FinanceManager:', error);
+});

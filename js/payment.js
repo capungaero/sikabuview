@@ -13,12 +13,6 @@ class PaymentManager {
     }
     
     async init() {
-        // Wait for database to be ready
-        if (!window.dbManager) {
-            setTimeout(() => this.init(), 100);
-            return;
-        }
-        
         await this.loadPayments();
         this.setupEventListeners();
     }
@@ -589,4 +583,9 @@ window.filterPayments = () => {
 };
 
 // Initialize payment manager
-window.paymentManager = new PaymentManager();
+// Initialize PaymentManager after database is ready
+waitForDatabase().then(() => {
+    window.paymentManager = new PaymentManager();
+}).catch(error => {
+    console.error('Failed to initialize PaymentManager:', error);
+});

@@ -11,12 +11,6 @@ class BookingManager {
     }
     
     async init() {
-        // Wait for database to be ready
-        if (!window.dbManager) {
-            setTimeout(() => this.init(), 100);
-            return;
-        }
-        
         await this.loadBookings();
         this.setupEventListeners();
         this.updateDashboardStats();
@@ -503,4 +497,9 @@ window.filterBookings = () => {
 };
 
 // Initialize booking manager
-window.bookingManager = new BookingManager();
+// Initialize BookingManager after database is ready
+waitForDatabase().then(() => {
+    window.bookingManager = new BookingManager();
+}).catch(error => {
+    console.error('Failed to initialize BookingManager:', error);
+});
