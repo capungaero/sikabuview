@@ -48,6 +48,7 @@ class PaymentManager {
     
     async loadPayments() {
         try {
+            await waitForDatabase();
             this.currentPayments = await window.dbManager.select('payments', {}, 'paymentDate DESC');
             this.filteredPayments = [...this.currentPayments];
             this.displayPayments();

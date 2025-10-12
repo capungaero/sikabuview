@@ -133,6 +133,7 @@ class BookingManager {
     
     async loadBookings() {
         try {
+            await waitForDatabase();
             this.currentBookings = await window.dbManager.select('bookings', {}, 'bookingDate DESC');
             this.filteredBookings = [...this.currentBookings];
             this.displayBookings();

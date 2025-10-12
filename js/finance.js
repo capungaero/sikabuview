@@ -54,6 +54,8 @@ class FinanceManager {
     
     async loadFinanceData() {
         try {
+            await waitForDatabase();
+            
             // Load expenses
             this.currentExpenses = await window.dbManager.select('expenses', {}, 'expenseDate DESC');
             

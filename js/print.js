@@ -21,6 +21,7 @@ class PrintManager {
     // Booking Report Printing
     async printBookingReport() {
         try {
+            await waitForDatabase();
             const bookings = await window.dbManager.select('bookings', {}, 'bookingDate DESC');
             
             const printContent = this.generateBookingReport(bookings);
@@ -131,6 +132,7 @@ class PrintManager {
     // Payment Report Printing
     async printPaymentReport() {
         try {
+            await waitForDatabase();
             const payments = await window.dbManager.select('payments', {}, 'paymentDate DESC');
             
             // Get booking details for each payment
@@ -244,6 +246,7 @@ class PrintManager {
     // Finance Report Printing
     async printFinanceReport() {
         try {
+            await waitForDatabase();
             const expenses = await window.dbManager.select('expenses', {}, 'expenseDate DESC');
             const payments = await window.dbManager.select('payments', {}, 'paymentDate DESC');
             
@@ -398,6 +401,7 @@ class PrintManager {
     // Payment Receipt Printing
     async printPaymentReceipt(paymentId) {
         try {
+            await waitForDatabase();
             const payments = await window.dbManager.select('payments', { id: paymentId });
             if (payments.length === 0) {
                 alert('Pembayaran tidak ditemukan');
