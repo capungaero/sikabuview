@@ -584,8 +584,11 @@ window.filterPayments = () => {
 
 // Initialize payment manager
 // Initialize PaymentManager after database is ready
-waitForDatabase().then(() => {
-    window.paymentManager = new PaymentManager();
-}).catch(error => {
-    console.error('Failed to initialize PaymentManager:', error);
-});
+(async function initPaymentManager() {
+    try {
+        await waitForDatabase();
+        window.paymentManager = new PaymentManager();
+    } catch (error) {
+        console.error('Failed to initialize PaymentManager:', error);
+    }
+})();

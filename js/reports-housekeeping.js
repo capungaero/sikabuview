@@ -651,12 +651,13 @@ function printAllReports() {
 }
 
 // Initialize new managers when DOM is loaded
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
     // Wait for database to be ready before initializing managers
-    waitForDatabase().then(() => {
+    try {
+        await waitForDatabase();
         window.housekeepingManager = new HousekeepingManager();
         window.reportsManager = new ReportsManager();
-    }).catch(error => {
+    } catch (error) {
         console.error('Failed to initialize housekeeping and reports managers:', error);
-    });
+    }
 });

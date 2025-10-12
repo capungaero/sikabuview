@@ -915,13 +915,14 @@ function navigateCalendar(direction) {
 }
 
 // Initialize managers when DOM is loaded and database is ready
-document.addEventListener('DOMContentLoaded', function() {
-    waitForDatabase().then(() => {
+document.addEventListener('DOMContentLoaded', async function() {
+    try {
+        await waitForDatabase();
         window.roomsManager = new RoomsManager();
         window.guestsManager = new GuestsManager();
         window.calendarManager = new CalendarManager();
         window.checkInOutManager = new CheckInOutManager();
-    }).catch(error => {
+    } catch (error) {
         console.error('Failed to initialize advanced feature managers:', error);
-    });
+    }
 });

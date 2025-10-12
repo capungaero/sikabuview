@@ -498,8 +498,11 @@ window.filterBookings = () => {
 
 // Initialize booking manager
 // Initialize BookingManager after database is ready
-waitForDatabase().then(() => {
-    window.bookingManager = new BookingManager();
-}).catch(error => {
-    console.error('Failed to initialize BookingManager:', error);
-});
+(async function initBookingManager() {
+    try {
+        await waitForDatabase();
+        window.bookingManager = new BookingManager();
+    } catch (error) {
+        console.error('Failed to initialize BookingManager:', error);
+    }
+})();

@@ -586,8 +586,11 @@ window.showFinanceTab = (tabName) => {
 
 // Initialize finance manager
 // Initialize FinanceManager after database is ready
-waitForDatabase().then(() => {
-    window.financeManager = new FinanceManager();
-}).catch(error => {
-    console.error('Failed to initialize FinanceManager:', error);
-});
+(async function initFinanceManager() {
+    try {
+        await waitForDatabase();
+        window.financeManager = new FinanceManager();
+    } catch (error) {
+        console.error('Failed to initialize FinanceManager:', error);
+    }
+})();
