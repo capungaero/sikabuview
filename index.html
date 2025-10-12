@@ -19,9 +19,15 @@
         <div class="container">
             <ul>
                 <li><a href="#dashboard" data-tab="dashboard" class="active">Dashboard</a></li>
+                <li><a href="#rooms" data-tab="rooms">Kamar & Harga</a></li>
+                <li><a href="#guests" data-tab="guests">Data Tamu</a></li>
+                <li><a href="#calendar" data-tab="calendar">Kalender</a></li>
                 <li><a href="#booking" data-tab="booking">Booking</a></li>
+                <li><a href="#checkin" data-tab="checkin">Check-in/out</a></li>
                 <li><a href="#payment" data-tab="payment">Pembayaran</a></li>
+                <li><a href="#housekeeping" data-tab="housekeeping">Housekeeping</a></li>
                 <li><a href="#finance" data-tab="finance">Keuangan</a></li>
+                <li><a href="#reports" data-tab="reports">Laporan</a></li>
                 <li><a href="#data" data-tab="data">Data Management</a></li>
             </ul>
         </div>
@@ -451,6 +457,546 @@
             </div>
         </section>
 
+        <!-- Rooms & Pricing Tab -->
+        <section id="rooms" class="tab-content">
+            <div class="module-header">
+                <h2>Konfigurasi Kamar & Harga</h2>
+                <div class="module-actions">
+                    <button class="btn btn-primary" onclick="showAddRoomForm()">Tambah Kamar/Villa</button>
+                    <button class="btn btn-secondary" onclick="printRoomList()">Cetak Daftar</button>
+                </div>
+            </div>
+
+            <!-- Add Room Form -->
+            <div id="room-form" class="form-container" style="display: none;">
+                <h3>Tambah/Edit Kamar/Villa</h3>
+                <form id="add-room-form">
+                    <div class="form-group">
+                        <label for="room-type">Tipe Akomodasi:</label>
+                        <select id="room-type" required>
+                            <option value="">Pilih Tipe</option>
+                            <option value="kamar">Kamar</option>
+                            <option value="villa">Villa</option>
+                            <option value="camping">Area Camping</option>
+                            <option value="tent">Tenda</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="room-number">Nomor/Nama:</label>
+                        <input type="text" id="room-number" placeholder="Contoh: 101, Villa A, Camp Area 1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="room-capacity">Kapasitas:</label>
+                        <input type="number" id="room-capacity" min="1" max="20" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="room-price">Harga per Malam (Rp):</label>
+                        <input type="number" id="room-price" min="0" step="5000" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="room-facilities">Fasilitas:</label>
+                        <textarea id="room-facilities" placeholder="AC, TV, Kamar Mandi Dalam, WiFi, dll"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="room-description">Deskripsi:</label>
+                        <textarea id="room-description" placeholder="Deskripsi detail kamar/villa"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="room-status">Status:</label>
+                        <select id="room-status" required>
+                            <option value="available">Tersedia</option>
+                            <option value="maintenance">Maintenance</option>
+                            <option value="cleaning">Cleaning</option>
+                            <option value="out-of-order">Out of Order</option>
+                        </select>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Simpan</button>
+                        <button type="button" class="btn btn-secondary" onclick="hideRoomForm()">Batal</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Rooms List -->
+            <div class="rooms-list">
+                <div class="filter-bar">
+                    <select id="room-type-filter" onchange="filterRooms()">
+                        <option value="">Semua Tipe</option>
+                        <option value="kamar">Kamar</option>
+                        <option value="villa">Villa</option>
+                        <option value="camping">Area Camping</option>
+                        <option value="tent">Tenda</option>
+                    </select>
+                    <select id="room-status-filter" onchange="filterRooms()">
+                        <option value="">Semua Status</option>
+                        <option value="available">Tersedia</option>
+                        <option value="occupied">Terisi</option>
+                        <option value="maintenance">Maintenance</option>
+                        <option value="cleaning">Cleaning</option>
+                        <option value="out-of-order">Out of Order</option>
+                    </select>
+                </div>
+                <div id="rooms-container" class="rooms-grid">
+                    <!-- Rooms will be loaded here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Guests Management Tab -->
+        <section id="guests" class="tab-content">
+            <div class="module-header">
+                <h2>Data Tamu</h2>
+                <div class="module-actions">
+                    <button class="btn btn-primary" onclick="showAddGuestForm()">Registrasi Tamu</button>
+                    <button class="btn btn-secondary" onclick="printGuestList()">Cetak Daftar</button>
+                </div>
+            </div>
+
+            <!-- Add Guest Form -->
+            <div id="guest-form" class="form-container" style="display: none;">
+                <h3>Registrasi Tamu Baru</h3>
+                <form id="add-guest-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="guest-id">ID Tamu:</label>
+                            <input type="text" id="guest-id" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="guest-name">Nama Lengkap:</label>
+                            <input type="text" id="guest-name" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="guest-id-card">No. KTP/Identitas:</label>
+                            <input type="text" id="guest-id-card" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="guest-phone">No. Telepon:</label>
+                            <input type="tel" id="guest-phone" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="guest-email">Email:</label>
+                        <input type="email" id="guest-email">
+                    </div>
+                    <div class="form-group">
+                        <label for="guest-address">Alamat:</label>
+                        <textarea id="guest-address" required></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="guest-company">Perusahaan/Instansi:</label>
+                            <input type="text" id="guest-company">
+                        </div>
+                        <div class="form-group">
+                            <label for="guest-purpose">Tujuan Kunjungan:</label>
+                            <select id="guest-purpose">
+                                <option value="leisure">Liburan</option>
+                                <option value="business">Bisnis</option>
+                                <option value="family">Keluarga</option>
+                                <option value="event">Event</option>
+                                <option value="other">Lainnya</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="guest-notes">Catatan Khusus:</label>
+                        <textarea id="guest-notes" placeholder="Alergi, permintaan khusus, dll"></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Simpan Tamu</button>
+                        <button type="button" class="btn btn-secondary" onclick="hideGuestForm()">Batal</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Guests List -->
+            <div class="guests-list">
+                <div class="search-bar">
+                    <input type="text" id="guest-search" placeholder="Cari tamu..." onkeyup="searchGuests()">
+                    <select id="guest-filter" onchange="filterGuests()">
+                        <option value="">Semua Tamu</option>
+                        <option value="current">Tamu Aktif</option>
+                        <option value="vip">VIP</option>
+                        <option value="regular">Regular</option>
+                    </select>
+                </div>
+                <div id="guests-container" class="table-container">
+                    <!-- Guests table will be loaded here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Calendar & Availability Tab -->
+        <section id="calendar" class="tab-content">
+            <div class="module-header">
+                <h2>Kalender Ketersediaan</h2>
+                <div class="module-actions">
+                    <button class="btn btn-primary" onclick="showCalendarView('month')">Bulan</button>
+                    <button class="btn btn-secondary" onclick="showCalendarView('week')">Minggu</button>
+                    <button class="btn btn-info" onclick="refreshCalendar()">Refresh</button>
+                </div>
+            </div>
+
+            <div class="calendar-container">
+                <div class="calendar-header">
+                    <button class="btn-nav" onclick="navigateCalendar(-1)">‹</button>
+                    <h3 id="calendar-title">Oktober 2025</h3>
+                    <button class="btn-nav" onclick="navigateCalendar(1)">›</button>
+                </div>
+                
+                <div class="legend">
+                    <span class="legend-item available">Tersedia</span>
+                    <span class="legend-item booked">Terisi</span>
+                    <span class="legend-item maintenance">Maintenance</span>
+                    <span class="legend-item checkout">Check-out</span>
+                    <span class="legend-item checkin">Check-in</span>
+                </div>
+
+                <div id="calendar-grid" class="calendar-grid">
+                    <!-- Calendar will be generated here -->
+                </div>
+            </div>
+
+            <div class="room-availability">
+                <h3>Ketersediaan Kamar Hari Ini</h3>
+                <div id="today-availability" class="availability-grid">
+                    <!-- Today's room availability -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Check-in/Check-out Tab -->
+        <section id="checkin" class="tab-content">
+            <div class="module-header">
+                <h2>Check-in & Check-out</h2>
+                <div class="module-actions">
+                    <button class="btn btn-primary" onclick="showQuickCheckin()">Quick Check-in</button>
+                    <button class="btn btn-secondary" onclick="showQuickCheckout()">Quick Check-out</button>
+                </div>
+            </div>
+
+            <div class="checkin-tabs">
+                <button class="tab-btn active" onclick="showCheckinTab('checkin')">Check-in Hari Ini</button>
+                <button class="tab-btn" onclick="showCheckinTab('checkout')">Check-out Hari Ini</button>
+                <button class="tab-btn" onclick="showCheckinTab('current')">Tamu Aktif</button>
+            </div>
+
+            <!-- Check-in Form -->
+            <div id="quick-checkin-form" class="form-container" style="display: none;">
+                <h3>Quick Check-in</h3>
+                <form id="checkin-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="checkin-booking">Booking ID:</label>
+                            <input type="text" id="checkin-booking" placeholder="Masukkan Booking ID" required>
+                            <button type="button" class="btn btn-small" onclick="searchBooking()">Cari</button>
+                        </div>
+                        <div class="form-group">
+                            <label for="checkin-time">Waktu Check-in:</label>
+                            <input type="datetime-local" id="checkin-time" required>
+                        </div>
+                    </div>
+                    <div id="booking-details" class="booking-info" style="display: none;">
+                        <!-- Booking details will be shown here -->
+                    </div>
+                    <div class="form-group">
+                        <label for="checkin-notes">Catatan Check-in:</label>
+                        <textarea id="checkin-notes" placeholder="Kondisi kamar, kunci diberikan, dll"></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Proses Check-in</button>
+                        <button type="button" class="btn btn-secondary" onclick="hideCheckinForm()">Batal</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Check-out Form -->
+            <div id="quick-checkout-form" class="form-container" style="display: none;">
+                <h3>Quick Check-out</h3>
+                <form id="checkout-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="checkout-room">Kamar/Villa:</label>
+                            <select id="checkout-room" required>
+                                <option value="">Pilih Kamar yang Check-out</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="checkout-time">Waktu Check-out:</label>
+                            <input type="datetime-local" id="checkout-time" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="checkout-condition">Kondisi Kamar:</label>
+                        <select id="checkout-condition" required>
+                            <option value="good">Baik</option>
+                            <option value="need-cleaning">Perlu Dibersihkan</option>
+                            <option value="maintenance">Perlu Maintenance</option>
+                            <option value="damaged">Ada Kerusakan</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="checkout-notes">Catatan Check-out:</label>
+                        <textarea id="checkout-notes" placeholder="Kondisi kamar, barang tertinggal, dll"></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Proses Check-out</button>
+                        <button type="button" class="btn btn-secondary" onclick="hideCheckoutForm()">Batal</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Check-in/Check-out Lists -->
+            <div id="checkin-content" class="checkin-content">
+                <div id="checkin-list" class="checkin-tab-content active">
+                    <h3>Daftar Check-in Hari Ini</h3>
+                    <div id="today-checkins" class="checkin-list">
+                        <!-- Today's check-ins -->
+                    </div>
+                </div>
+                
+                <div id="checkout-list" class="checkin-tab-content">
+                    <h3>Daftar Check-out Hari Ini</h3>
+                    <div id="today-checkouts" class="checkout-list">
+                        <!-- Today's check-outs -->
+                    </div>
+                </div>
+                
+                <div id="current-guests" class="checkin-tab-content">
+                    <h3>Tamu yang Sedang Menginap</h3>
+                    <div id="active-guests" class="active-guests-list">
+                        <!-- Current guests -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Housekeeping Tab -->
+        <section id="housekeeping" class="tab-content">
+            <div class="module-header">
+                <h2>Housekeeping & Maintenance</h2>
+                <div class="module-actions">
+                    <button class="btn btn-primary" onclick="showAddTaskForm()">Tambah Tugas</button>
+                    <button class="btn btn-secondary" onclick="printHousekeepingReport()">Cetak Laporan</button>
+                </div>
+            </div>
+
+            <div class="housekeeping-tabs">
+                <button class="tab-btn active" onclick="showHousekeepingTab('cleaning')">Cleaning Schedule</button>
+                <button class="tab-btn" onclick="showHousekeepingTab('maintenance')">Maintenance</button>
+                <button class="tab-btn" onclick="showHousekeepingTab('inventory')">Inventory</button>
+            </div>
+
+            <!-- Add Task Form -->
+            <div id="task-form" class="form-container" style="display: none;">
+                <h3>Tambah Tugas Housekeeping</h3>
+                <form id="add-task-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="task-type">Jenis Tugas:</label>
+                            <select id="task-type" required>
+                                <option value="cleaning">Cleaning</option>
+                                <option value="maintenance">Maintenance</option>
+                                <option value="inspection">Inspeksi</option>
+                                <option value="inventory">Inventory Check</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="task-room">Kamar/Area:</label>
+                            <select id="task-room" required>
+                                <option value="">Pilih Kamar/Area</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="task-priority">Prioritas:</label>
+                            <select id="task-priority" required>
+                                <option value="low">Rendah</option>
+                                <option value="normal">Normal</option>
+                                <option value="high">Tinggi</option>
+                                <option value="urgent">Mendesak</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="task-assignee">Petugas:</label>
+                            <input type="text" id="task-assignee" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="task-description">Deskripsi Tugas:</label>
+                        <textarea id="task-description" required></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="task-due-date">Target Selesai:</label>
+                            <input type="datetime-local" id="task-due-date" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="task-status">Status:</label>
+                            <select id="task-status" required>
+                                <option value="pending">Pending</option>
+                                <option value="in-progress">Dikerjakan</option>
+                                <option value="completed">Selesai</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Simpan Tugas</button>
+                        <button type="button" class="btn btn-secondary" onclick="hideTaskForm()">Batal</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Housekeeping Content -->
+            <div id="housekeeping-content" class="housekeeping-content">
+                <div id="cleaning-schedule" class="housekeeping-tab-content active">
+                    <div class="schedule-grid" id="cleaning-schedule-grid">
+                        <!-- Cleaning schedule -->
+                    </div>
+                </div>
+                
+                <div id="maintenance-tasks" class="housekeeping-tab-content">
+                    <div class="tasks-list" id="maintenance-tasks-list">
+                        <!-- Maintenance tasks -->
+                    </div>
+                </div>
+                
+                <div id="inventory-check" class="housekeeping-tab-content">
+                    <div class="inventory-grid" id="inventory-grid">
+                        <!-- Inventory items -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Reports Tab -->
+        <section id="reports" class="tab-content">
+            <div class="module-header">
+                <h2>Laporan & Analytics</h2>
+                <div class="module-actions">
+                    <button class="btn btn-primary" onclick="generateReport()">Generate Laporan</button>
+                    <button class="btn btn-secondary" onclick="printAllReports()">Cetak Semua</button>
+                </div>
+            </div>
+
+            <div class="reports-filter">
+                <div class="filter-group">
+                    <label for="report-period">Periode:</label>
+                    <select id="report-period" onchange="updateReportPeriod()">
+                        <option value="today">Hari Ini</option>
+                        <option value="week">Minggu Ini</option>
+                        <option value="month">Bulan Ini</option>
+                        <option value="quarter">Kuartal Ini</option>
+                        <option value="year">Tahun Ini</option>
+                        <option value="custom">Custom</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="report-start">Dari:</label>
+                    <input type="date" id="report-start">
+                </div>
+                <div class="filter-group">
+                    <label for="report-end">Sampai:</label>
+                    <input type="date" id="report-end">
+                </div>
+            </div>
+
+            <div class="reports-grid">
+                <div class="report-card">
+                    <h3>Occupancy Rate</h3>
+                    <div class="report-content">
+                        <div class="stat-large" id="occupancy-rate">0%</div>
+                        <div class="stat-detail">
+                            <span>Kamar Terisi: <span id="occupied-rooms">0</span></span>
+                            <span>Total Kamar: <span id="total-rooms">0</span></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="report-card">
+                    <h3>Revenue per Room (RevPAR)</h3>
+                    <div class="report-content">
+                        <div class="stat-large" id="revpar">Rp 0</div>
+                        <div class="stat-detail">
+                            <span>Total Revenue: <span id="total-revenue">Rp 0</span></span>
+                            <span>Available Rooms: <span id="available-room-nights">0</span></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="report-card">
+                    <h3>Average Daily Rate (ADR)</h3>
+                    <div class="report-content">
+                        <div class="stat-large" id="adr">Rp 0</div>
+                        <div class="stat-detail">
+                            <span>Total Revenue: <span id="adr-revenue">Rp 0</span></span>
+                            <span>Rooms Sold: <span id="rooms-sold">0</span></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="report-card">
+                    <h3>Booking Trends</h3>
+                    <div class="report-content">
+                        <canvas id="booking-chart" width="300" height="200"></canvas>
+                    </div>
+                </div>
+
+                <div class="report-card">
+                    <h3>Revenue Trends</h3>
+                    <div class="report-content">
+                        <canvas id="revenue-chart" width="300" height="200"></canvas>
+                    </div>
+                </div>
+
+                <div class="report-card">
+                    <h3>Top Room Types</h3>
+                    <div class="report-content">
+                        <div id="top-room-types" class="ranking-list">
+                            <!-- Top room types -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="detailed-reports">
+                <h3>Laporan Detail</h3>
+                <div class="report-tabs">
+                    <button class="tab-btn active" onclick="showReportTab('booking-report')">Booking Report</button>
+                    <button class="tab-btn" onclick="showReportTab('financial-report')">Financial Report</button>
+                    <button class="tab-btn" onclick="showReportTab('guest-report')">Guest Report</button>
+                    <button class="tab-btn" onclick="showReportTab('housekeeping-report')">Housekeeping Report</button>
+                </div>
+
+                <div id="booking-report" class="report-tab-content active">
+                    <div id="booking-detail-table" class="table-container">
+                        <!-- Booking detail table -->
+                    </div>
+                </div>
+
+                <div id="financial-report" class="report-tab-content">
+                    <div id="financial-detail-table" class="table-container">
+                        <!-- Financial detail table -->
+                    </div>
+                </div>
+
+                <div id="guest-report" class="report-tab-content">
+                    <div id="guest-detail-table" class="table-container">
+                        <!-- Guest detail table -->
+                    </div>
+                </div>
+
+                <div id="housekeeping-report" class="report-tab-content">
+                    <div id="housekeeping-detail-table" class="table-container">
+                        <!-- Housekeeping detail table -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- Data Management Tab -->
         <section id="data" class="tab-content">
             <div class="module-header">
@@ -512,6 +1058,8 @@
     <script src="js/payment.js"></script>
     <script src="js/finance.js"></script>
     <script src="js/print.js"></script>
+    <script src="js/advanced-features.js"></script>
+    <script src="js/reports-housekeeping.js"></script>
     <script src="js/app.js"></script>
 </body>
 </html>
