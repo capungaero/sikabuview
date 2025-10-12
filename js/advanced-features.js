@@ -19,11 +19,16 @@ class RoomsManager {
 
     async loadRooms() {
         try {
-            this.rooms = await database.getRooms();
+            // Wait for database to be available
+            while (!window.dbManager) {
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+            this.rooms = await window.dbManager.select('rooms') || [];
             this.renderRoomsList();
             this.updateRoomOptions();
         } catch (error) {
             console.error('Error loading rooms:', error);
+            this.rooms = [];
         }
     }
 
@@ -43,7 +48,7 @@ class RoomsManager {
         };
 
         try {
-            await database.addRoom(roomData);
+            await window.dbManager.insert('rooms', roomData);
             this.rooms.push(roomData);
             this.renderRoomsList();
             this.updateRoomOptions();
@@ -139,7 +144,7 @@ class RoomsManager {
         if (!confirm('Yakin ingin menghapus kamar ini?')) return;
 
         try {
-            await database.deleteRoom(roomId);
+            await window.dbManager.delete('rooms', roomId);
             this.rooms = this.rooms.filter(r => r.id !== roomId);
             this.renderRoomsList();
             this.updateRoomOptions();
@@ -220,10 +225,15 @@ class GuestsManager {
 
     async loadGuests() {
         try {
-            this.guests = await database.getGuests();
+            // Wait for database to be available
+            while (!window.dbManager) {
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+            this.guests = await window.dbManager.select('guests') || [];
             this.renderGuestsList();
         } catch (error) {
             console.error('Error loading guests:', error);
+            this.guests = [];
         }
     }
 
@@ -246,7 +256,7 @@ class GuestsManager {
         };
 
         try {
-            await database.addGuest(guestData);
+            await window.dbManager.insert('guests', guestData);
             this.guests.push(guestData);
             this.renderGuestsList();
             this.hideGuestForm();
@@ -378,10 +388,16 @@ class CalendarManager {
 
     async loadData() {
         try {
-            this.bookings = await database.getBookings();
-            this.rooms = await database.getRooms();
+            // Wait for database to be available
+            while (!window.dbManager) {
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+            this.bookings = await window.dbManager.select('bookings') || [];
+            this.rooms = await window.dbManager.select('rooms') || [];
         } catch (error) {
             console.error('Error loading calendar data:', error);
+            this.bookings = [];
+            this.rooms = [];
         }
     }
 
@@ -541,11 +557,17 @@ class CheckInOutManager {
 
     async loadData() {
         try {
-            this.bookings = await database.getBookings();
-            this.rooms = await database.getRooms();
+            // Wait for database to be available
+            while (!window.dbManager) {
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+            this.bookings = await window.dbManager.select('bookings') || [];
+            this.rooms = await window.dbManager.select('rooms') || [];
             this.renderTodayActivities();
         } catch (error) {
             console.error('Error loading check-in/out data:', error);
+            this.bookings = [];
+            this.rooms = [];
         }
     }
 
@@ -593,13 +615,13 @@ class CheckInOutManager {
             booking.actualCheckInTime = checkinTime;
             booking.checkinNotes = notes;
 
-            await database.updateBooking(booking);
+            await window.dbManager.update('bookings', booking);
             
             // Update room status
             const room = this.rooms.find(r => r.id === booking.roomId);
             if (room) {
                 room.status = 'occupied';
-                await database.updateRoom(room);
+                await window.dbManager.update('rooms', room);
             }
 
             this.hideCheckinForm();
@@ -630,14 +652,14 @@ class CheckInOutManager {
             booking.checkoutNotes = notes;
             booking.roomCondition = condition;
 
-            await database.updateBooking(booking);
+            await window.dbManager.update('bookings', booking);
             
             // Update room status based on condition
             const room = this.rooms.find(r => r.id === booking.roomId);
             if (room) {
                 room.status = condition === 'good' ? 'available' : 
                              condition === 'need-cleaning' ? 'cleaning' : 'maintenance';
-                await database.updateRoom(room);
+                await window.dbManager.update('rooms', room);
             }
 
             this.hideCheckoutForm();
@@ -752,6 +774,55 @@ class CheckInOutManager {
 }
 
 // Global functions
+function showNotification(message, type = 'info') {
+    // Create notification element if it doesn't exist
+    let notification = document.getElementById('notification');
+    if (!notification) {
+        notification = document.createElement('div');
+        notification.id = 'notification';
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            border-radius: 4px;
+            color: white;
+            font-weight: bold;
+            z-index: 10000;
+            max-width: 300px;
+            word-wrap: break-word;
+        `;
+        document.body.appendChild(notification);
+    }
+
+    // Set message and style based on type
+    notification.textContent = message;
+    notification.className = `notification ${type}`;
+    
+    const colors = {
+        success: '#27ae60',
+        error: '#e74c3c',
+        warning: '#f39c12',
+        info: '#3498db'
+    };
+    
+    notification.style.backgroundColor = colors[type] || colors.info;
+    notification.style.display = 'block';
+
+    // Auto hide after 3 seconds
+    setTimeout(() => {
+        notification.style.display = 'none';
+    }, 3000);
+}
+
+function formatCurrency(amount) {
+    return new Intl.NumberFormat('id-ID', {
+        style: 'currency',
+        currency: 'IDR',
+        minimumFractionDigits: 0
+    }).format(amount);
+}
+
 function showAddRoomForm() {
     if (window.roomsManager) {
         window.roomsManager.showRoomForm();

@@ -21,20 +21,30 @@ class HousekeepingManager {
 
     async loadTasks() {
         try {
-            this.tasks = await database.getTasks() || [];
+            // Wait for database to be available
+            while (!window.dbManager) {
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+            this.tasks = await window.dbManager.select('tasks') || [];
             this.renderCleaningSchedule();
             this.renderMaintenanceTasks();
         } catch (error) {
             console.error('Error loading tasks:', error);
+            this.tasks = [];
         }
     }
 
     async loadInventory() {
         try {
-            this.inventory = await database.getInventory() || [];
+            // Wait for database to be available
+            while (!window.dbManager) {
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+            this.inventory = await window.dbManager.select('inventory') || [];
             this.renderInventory();
         } catch (error) {
             console.error('Error loading inventory:', error);
+            this.inventory = [];
         }
     }
 
@@ -53,7 +63,7 @@ class HousekeepingManager {
         };
 
         try {
-            await database.addTask(taskData);
+            await window.dbManager.insert('tasks', taskData);
             this.tasks.push(taskData);
             this.renderCleaningSchedule();
             this.renderMaintenanceTasks();
@@ -173,7 +183,7 @@ class HousekeepingManager {
         task.completedAt = status === 'completed' ? new Date().toISOString() : null;
 
         try {
-            await database.updateTask(task);
+            await window.dbManager.update('tasks', task);
             this.renderCleaningSchedule();
             this.renderMaintenanceTasks();
             showNotification(`Tugas ${status === 'completed' ? 'selesai' : 'diupdate'}!`, 'success');
@@ -181,6 +191,31 @@ class HousekeepingManager {
             console.error('Error updating task:', error);
             showNotification('Error mengupdate tugas!', 'error');
         }
+    }
+
+    renderInventory() {
+        const container = document.getElementById('inventory-grid');
+        if (!container) return;
+
+        // Sample inventory items - you can expand this
+        const sampleInventory = [
+            { item: 'Handuk', stock: 50, minimum: 20, status: 'adequate' },
+            { item: 'Sabun', stock: 15, minimum: 20, status: 'low' },
+            { item: 'Shampo', stock: 30, minimum: 15, status: 'adequate' },
+            { item: 'Tissue', stock: 5, minimum: 10, status: 'critical' }
+        ];
+
+        container.innerHTML = sampleInventory.map(item => `
+            <div class="inventory-item ${item.status}">
+                <h4>${item.item}</h4>
+                <p>Stock: ${item.stock}</p>
+                <p>Minimum: ${item.minimum}</p>
+                <span class="status-badge ${item.status}">
+                    ${item.status === 'adequate' ? 'Cukup' : 
+                      item.status === 'low' ? 'Rendah' : 'Kritis'}
+                </span>
+            </div>
+        `).join('');
     }
 
     showHousekeepingTab(tabName) {
@@ -247,12 +282,20 @@ class ReportsManager {
 
     async loadData() {
         try {
-            this.bookings = await database.getBookings() || [];
-            this.payments = await database.getPayments() || [];
-            this.expenses = await database.getExpenses() || [];
-            this.rooms = await database.getRooms() || [];
+            // Wait for database to be available
+            while (!window.dbManager) {
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+            this.bookings = await window.dbManager.select('bookings') || [];
+            this.payments = await window.dbManager.select('payments') || [];
+            this.expenses = await window.dbManager.select('expenses') || [];
+            this.rooms = await window.dbManager.select('rooms') || [];
         } catch (error) {
             console.error('Error loading reports data:', error);
+            this.bookings = [];
+            this.payments = [];
+            this.expenses = [];
+            this.rooms = [];
         }
     }
 

@@ -1,0 +1,6 @@
+body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f7f7f7; }
+h1 { background: #2d6a4f; color: #fff; margin: 0; padding: 1rem; }
+nav { background: #40916c; padding: 1rem; }
+nav button { margin-right: 1rem; padding: 0.5rem 1rem; border: none; background: #fff; color: #40916c; border-radius: 4px; cursor: pointer; font-weight: bold; }
+nav button:hover { background: #b7e4c7; }
+#main-content { padding: 2rem; }
