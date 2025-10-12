@@ -3,51 +3,145 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SikaBu View - Manajemen Penginapan</title>
-    <link rel="stylesheet" href="css/style.css">
+    <title>Sikabuview - Manajemen Penginapan</title>
+    <link rel="stylesheet" href="css/style-new.css">
     <link rel="stylesheet" href="css/print.css" media="print">
+    <!-- Font Awesome untuk icon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <header>
-        <div class="container">
-            <h1>SikaBu View</h1>
-            <p>Sistem Manajemen Penginapan Villa & Camping Ground</p>
-        </div>
-    </header>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fas fa-mountain"></i>
+                    <h1>Sikabuview</h1>
+                </div>
+                <p class="tagline">Manajemen Penginapan</p>
+            </div>
+            
+            <div class="nav-menu">
+                <!-- Dashboard -->
+                <div class="nav-section">
+                    <h3><i class="fas fa-chart-line"></i> Dashboard</h3>
+                    <ul>
+                        <li><a href="#dashboard" data-tab="dashboard" class="active"><i class="fas fa-home"></i> Overview</a></li>
+                    </ul>
+                </div>
 
-    <nav class="main-nav">
-        <div class="container">
-            <ul>
-                <li><a href="#dashboard" data-tab="dashboard" class="active">Dashboard</a></li>
-                <li><a href="#rooms" data-tab="rooms">Kamar & Harga</a></li>
-                <li><a href="#guests" data-tab="guests">Data Tamu</a></li>
-                <li><a href="#calendar" data-tab="calendar">Kalender</a></li>
-                <li><a href="#booking" data-tab="booking">Booking</a></li>
-                <li><a href="#checkin" data-tab="checkin">Check-in/out</a></li>
-                <li><a href="#payment" data-tab="payment">Pembayaran</a></li>
-                <li><a href="#housekeeping" data-tab="housekeeping">Housekeeping</a></li>
-                <li><a href="#finance" data-tab="finance">Keuangan</a></li>
-                <li><a href="#reports" data-tab="reports">Laporan</a></li>
-                <li><a href="#data" data-tab="data">Data Management</a></li>
-            </ul>
-        </div>
-    </nav>
+                <!-- Operations -->
+                <div class="nav-section">
+                    <h3><i class="fas fa-cogs"></i> Operasional</h3>
+                    <ul>
+                        <li><a href="#booking" data-tab="booking"><i class="fas fa-calendar-plus"></i> Booking</a></li>
+                        <li><a href="#checkin" data-tab="checkin"><i class="fas fa-door-open"></i> Check-in/out</a></li>
+                        <li><a href="#payment" data-tab="payment"><i class="fas fa-credit-card"></i> Pembayaran</a></li>
+                        <li><a href="#housekeeping" data-tab="housekeeping"><i class="fas fa-broom"></i> Housekeeping</a></li>
+                    </ul>
+                </div>
 
-    <main class="container">
-        <!-- Dashboard Tab -->
-        <section id="dashboard" class="tab-content active">
-            <div class="dashboard-header">
-                <h2>Dashboard</h2>
-                <div class="dashboard-stats">
-                    <div class="stat-card">
-                        <h3>Booking Hari Ini</h3>
-                        <p class="stat-number" id="today-bookings">0</p>
+                <!-- Management -->
+                <div class="nav-section">
+                    <h3><i class="fas fa-database"></i> Manajemen</h3>
+                    <ul>
+                        <li><a href="#rooms" data-tab="rooms"><i class="fas fa-bed"></i> Kamar & Harga</a></li>
+                        <li><a href="#guests" data-tab="guests"><i class="fas fa-users"></i> Data Tamu</a></li>
+                        <li><a href="#calendar" data-tab="calendar"><i class="fas fa-calendar-alt"></i> Kalender</a></li>
+                    </ul>
+                </div>
+
+                <!-- Reports & Finance -->
+                <div class="nav-section">
+                    <h3><i class="fas fa-chart-bar"></i> Laporan</h3>
+                    <ul>
+                        <li><a href="#finance" data-tab="finance"><i class="fas fa-coins"></i> Keuangan</a></li>
+                        <li><a href="#reports" data-tab="reports"><i class="fas fa-file-alt"></i> Laporan</a></li>
+                        <li><a href="#data" data-tab="data"><i class="fas fa-download"></i> Data Management</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="content-header">
+                <h2 id="current-page-title">Dashboard Overview</h2>
+                <div class="header-actions">
+                    <button class="btn btn-icon" title="Refresh">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                    <button class="btn btn-icon" title="Settings">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="content-wrapper">
+                <!-- Dashboard Tab -->
+                <section id="dashboard" class="tab-content active">
+                    <div class="dashboard-cards">
+                        <div class="card stat-card">
+                            <div class="card-icon blue">
+                                <i class="fas fa-calendar-check"></i>
+                            </div>
+                            <div class="card-content">
+                                <h3>Booking Hari Ini</h3>
+                                <p class="stat-number" id="today-bookings">0</p>
+                            </div>
+                        </div>
+                        <div class="card stat-card">
+                            <div class="card-icon green">
+                                <i class="fas fa-money-bill-wave"></i>
+                            </div>
+                            <div class="card-content">
+                                <h3>Pendapatan Bulan Ini</h3>
+                                <p class="stat-number" id="monthly-income">Rp 0</p>
+                            </div>
+                        </div>
+                        <div class="card stat-card">
+                            <div class="card-icon orange">
+                                <i class="fas fa-door-open"></i>
+                            </div>
+                            <div class="card-content">
+                                <h3>Kamar Terisi</h3>
+                                <p class="stat-number" id="occupied-rooms">0</p>
+                            </div>
+                        </div>
+                        <div class="card stat-card">
+                            <div class="card-icon purple">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="card-content">
+                                <h3>Total Tamu</h3>
+                                <p class="stat-number" id="total-guests">0</p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="stat-card">
-                        <h3>Pendapatan Bulan Ini</h3>
-                        <p class="stat-number" id="monthly-income">Rp 0</p>
+
+                    <div class="dashboard-grid">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3><i class="fas fa-chart-line"></i> Grafik Pendapatan</h3>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="revenue-chart" width="400" height="200"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">
+                                <h3><i class="fas fa-list"></i> Aktivitas Terbaru</h3>
+                            </div>
+                            <div class="card-body">
+                                <div id="recent-activities">
+                                    <!-- Aktivitas akan dimuat di sini -->
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="stat-card">
+                </section>
                         <h3>Kamar Tersedia</h3>
                         <p class="stat-number" id="available-rooms">0</p>
                     </div>
@@ -1053,6 +1147,7 @@
     </div>
 
     <!-- Scripts -->
+    <script src="js/modern-navigation.js"></script>
     <script src="js/database.js"></script>
     <script src="js/booking.js"></script>
     <script src="js/payment.js"></script>
