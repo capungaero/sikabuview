@@ -21,7 +21,13 @@ class FinanceManager {
     }
     
     setupEventListeners() {
-        // Add expense form submission
+        // Add finance form submission (new form from HTML)
+        const addFinanceForm = document.getElementById('add-finance-form');
+        if (addFinanceForm) {
+            addFinanceForm.addEventListener('submit', (e) => this.handleAddFinanceTransaction(e));
+        }
+
+        // Add expense form submission (old form)
         const addExpenseForm = document.getElementById('add-expense-form');
         if (addExpenseForm) {
             addExpenseForm.addEventListener('submit', (e) => this.handleAddExpense(e));
@@ -46,6 +52,79 @@ class FinanceManager {
         }
     }
     
+    async handleAddFinanceTransaction(e) {
+        e.preventDefault();
+        
+        const transactionType = document.getElementById('finance-type')?.value;
+        const category = document.getElementById('finance-category')?.value;
+        const amount = parseFloat(document.getElementById('finance-amount')?.value || 0);
+        const transactionDate = document.getElementById('finance-date')?.value;
+        const paymentMethod = document.getElementById('finance-payment-method')?.value;
+        const reference = document.getElementById('finance-reference')?.value;
+        const description = document.getElementById('finance-description')?.value;
+        const notes = document.getElementById('finance-notes')?.value;
+
+        try {
+            if (!transactionType || !category || !transactionDate || amount <= 0) {
+                showNotification('Mohon lengkapi semua field yang wajib!', 'warning');
+                return;
+            }
+
+            if (transactionType === 'expense') {
+                // Add as expense
+                const expenseData = {
+                    id: 'EXP-' + Date.now(),
+                    expenseDate: transactionDate,
+                    category: category,
+                    description: description,
+                    amount: amount,
+                    paymentMethod: paymentMethod,
+                    reference: reference,
+                    notes: notes,
+                    createdAt: new Date().toISOString()
+                };
+
+                await window.dbManager.insert('expenses', expenseData);
+                this.currentExpenses.push(expenseData);
+            } else {
+                // Add as income (misc income, not from booking)
+                const incomeData = {
+                    id: 'INC-' + Date.now(),
+                    date: transactionDate,
+                    category: category,
+                    description: description,
+                    amount: amount,
+                    paymentMethod: paymentMethod,
+                    reference: reference,
+                    notes: notes,
+                    source: 'other',
+                    createdAt: new Date().toISOString()
+                };
+
+                // Store in a separate income table if it exists, otherwise in expenses with negative amount
+                try {
+                    await window.dbManager.insert('income', incomeData);
+                    this.currentIncome.push(incomeData);
+                } catch (error) {
+                    // If income table doesn't exist, store as negative expense
+                    expenseData.amount = -amount;
+                    await window.dbManager.insert('expenses', expenseData);
+                }
+            }
+
+            // Reload and update
+            await this.loadFinanceData();
+            this.updateFinanceSummary();
+            hideFinanceForm();
+            e.target.reset();
+            
+            showNotification('Transaksi keuangan berhasil ditambahkan!', 'success');
+        } catch (error) {
+            console.error('Error adding finance transaction:', error);
+            showNotification('Error menambahkan transaksi: ' + error.message, 'error');
+        }
+    }
+
     async loadFinanceData() {
         try {
             await waitForDatabase();

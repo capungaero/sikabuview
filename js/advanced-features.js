@@ -38,15 +38,19 @@ class RoomsManager {
     async handleAddRoom(e) {
         e.preventDefault();
         const formData = new FormData(e.target);
+        
         const roomData = {
             id: this.generateRoomId(),
-            type: formData.get('room-type') || document.getElementById('room-type').value,
-            number: formData.get('room-number') || document.getElementById('room-number').value,
-            capacity: parseInt(formData.get('room-capacity') || document.getElementById('room-capacity').value),
-            price: parseInt(formData.get('room-price') || document.getElementById('room-price').value),
-            facilities: formData.get('room-facilities') || document.getElementById('room-facilities').value,
-            description: formData.get('room-description') || document.getElementById('room-description').value,
-            status: formData.get('room-status') || document.getElementById('room-status').value,
+            number: formData.get('roomNumber') || document.getElementById('room-number')?.value,
+            type: formData.get('roomType') || document.getElementById('room-type')?.value,
+            name: formData.get('roomName') || document.getElementById('room-name')?.value,
+            capacity: parseInt(formData.get('capacity') || document.getElementById('room-capacity')?.value || 2),
+            priceWeekday: parseInt(formData.get('priceWeekday') || document.getElementById('room-price-weekday')?.value || 0),
+            priceWeekend: parseInt(formData.get('priceWeekend') || document.getElementById('room-price-weekend')?.value || 0),
+            facilities: formData.get('facilities') || document.getElementById('room-facilities')?.value,
+            floor: formData.get('floor') || document.getElementById('room-floor')?.value,
+            notes: formData.get('notes') || document.getElementById('room-notes')?.value,
+            status: formData.get('status') || document.getElementById('room-status')?.value || 'tersedia',
             createdAt: new Date().toISOString()
         };
 
@@ -55,7 +59,7 @@ class RoomsManager {
             this.rooms.push(roomData);
             this.renderRoomsList();
             this.updateRoomOptions();
-            this.hideRoomForm();
+            hideRoomForm();
             e.target.reset();
             showNotification('Kamar berhasil ditambahkan!', 'success');
         } catch (error) {
@@ -69,28 +73,80 @@ class RoomsManager {
     }
 
     renderRoomsList() {
+        // Render for rooms-container (card view)
         const container = document.getElementById('rooms-container');
-        if (!container) return;
+        if (container) {
+            container.innerHTML = this.rooms.map(room => `
+                <div class="room-card ${room.status}" data-room-id="${room.id}">
+                    <div class="room-header">
+                        <h4>${room.number}</h4>
+                        <span class="room-type">${this.getRoomTypeLabel(room.type)}</span>
+                    </div>
+                    <div class="room-details">
+                        <p><strong>Kapasitas:</strong> ${room.capacity} orang</p>
+                        <p><strong>Harga:</strong> ${formatCurrency(room.price)}/malam</p>
+                        <p><strong>Status:</strong> <span class="status-badge ${room.status}">${this.getStatusLabel(room.status)}</span></p>
+                        <p><strong>Fasilitas:</strong> ${room.facilities || '-'}</p>
+                    </div>
+                    <div class="room-actions">
+                        <button class="btn btn-small btn-primary" onclick="window.roomsManager.editRoom('${room.id}')">Edit</button>
+                        <button class="btn btn-small btn-danger" onclick="window.roomsManager.deleteRoom('${room.id}')">Hapus</button>
+                        <button class="btn btn-small btn-secondary" onclick="window.roomsManager.changeRoomStatus('${room.id}')">Ubah Status</button>
+                    </div>
+                </div>
+            `).join('');
+        }
 
-        container.innerHTML = this.rooms.map(room => `
-            <div class="room-card ${room.status}" data-room-id="${room.id}">
-                <div class="room-header">
-                    <h4>${room.number}</h4>
-                    <span class="room-type">${this.getRoomTypeLabel(room.type)}</span>
-                </div>
-                <div class="room-details">
-                    <p><strong>Kapasitas:</strong> ${room.capacity} orang</p>
-                    <p><strong>Harga:</strong> ${formatCurrency(room.price)}/malam</p>
-                    <p><strong>Status:</strong> <span class="status-badge ${room.status}">${this.getStatusLabel(room.status)}</span></p>
-                    <p><strong>Fasilitas:</strong> ${room.facilities || '-'}</p>
-                </div>
-                <div class="room-actions">
-                    <button class="btn btn-small btn-primary" onclick="roomsManager.editRoom('${room.id}')">Edit</button>
-                    <button class="btn btn-small btn-danger" onclick="roomsManager.deleteRoom('${room.id}')">Hapus</button>
-                    <button class="btn btn-small btn-secondary" onclick="roomsManager.changeRoomStatus('${room.id}')">Ubah Status</button>
-                </div>
-            </div>
-        `).join('');
+        // Render for rooms-list (table view)
+        const tbody = document.getElementById('rooms-list');
+        if (tbody) {
+            if (this.rooms.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="text-center">Tidak ada data kamar/villa</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = this.rooms.map(room => {
+                let statusBadge = '';
+                switch(room.status) {
+                    case 'tersedia':
+                    case 'available':
+                        statusBadge = '<span class="badge badge-success">Tersedia</span>';
+                        break;
+                    case 'terisi':
+                    case 'occupied':
+                        statusBadge = '<span class="badge badge-danger">Terisi</span>';
+                        break;
+                    case 'maintenance':
+                        statusBadge = '<span class="badge badge-warning">Maintenance</span>';
+                        break;
+                    case 'tidak-aktif':
+                        statusBadge = '<span class="badge badge-secondary">Tidak Aktif</span>';
+                        break;
+                    default:
+                        statusBadge = `<span class="badge">${room.status}</span>`;
+                }
+
+                return `
+                    <tr>
+                        <td>${room.number || room.roomNumber}</td>
+                        <td>${this.getRoomTypeLabel(room.type || room.roomType)}</td>
+                        <td>${room.name || room.roomName || '-'}</td>
+                        <td>${room.capacity} orang</td>
+                        <td>${formatCurrency(room.priceWeekday || room.price || 0)}</td>
+                        <td>${formatCurrency(room.priceWeekend || room.price || 0)}</td>
+                        <td>${statusBadge}</td>
+                        <td>
+                            <button class="btn btn-sm btn-primary" onclick="window.roomsManager.editRoom('${room.id}')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="window.roomsManager.deleteRoom('${room.id}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
     }
 
     getRoomTypeLabel(type) {
@@ -245,27 +301,32 @@ class GuestsManager {
 
     async handleAddGuest(e) {
         e.preventDefault();
+        
         const guestData = {
             id: this.generateGuestId(),
-            name: document.getElementById('guest-name').value,
-            idCard: document.getElementById('guest-id-card').value,
-            phone: document.getElementById('guest-phone').value,
-            email: document.getElementById('guest-email').value,
-            address: document.getElementById('guest-address').value,
-            company: document.getElementById('guest-company').value,
-            purpose: document.getElementById('guest-purpose').value,
-            notes: document.getElementById('guest-notes').value,
+            idNumber: document.getElementById('guest-id-number')?.value,
+            fullName: document.getElementById('guest-full-name')?.value,
+            email: document.getElementById('guest-email')?.value,
+            phoneNumber: document.getElementById('guest-phone-number')?.value,
+            birthDate: document.getElementById('guest-birth-date')?.value,
+            gender: document.getElementById('guest-gender')?.value,
+            address: document.getElementById('guest-address')?.value,
+            city: document.getElementById('guest-city')?.value,
+            country: document.getElementById('guest-country')?.value,
+            nationality: document.getElementById('guest-nationality')?.value,
+            occupation: document.getElementById('guest-occupation')?.value,
+            notes: document.getElementById('guest-notes')?.value,
             createdAt: new Date().toISOString(),
-            visits: 1,
+            visits: 0,
             totalSpent: 0,
-            status: 'regular'
+            status: 'active'
         };
 
         try {
             await window.dbManager.insert('guests', guestData);
             this.guests.push(guestData);
             this.renderGuestsList();
-            this.hideGuestForm();
+            hideGuestForm();
             e.target.reset();
             showNotification('Tamu berhasil didaftarkan!', 'success');
         } catch (error) {
@@ -283,40 +344,72 @@ class GuestsManager {
     }
 
     renderGuestsList() {
+        // Render for guests-container (card/table view)
         const container = document.getElementById('guests-container');
-        if (!container) return;
-
-        container.innerHTML = `
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>ID Tamu</th>
-                        <th>Nama</th>
-                        <th>No. Telepon</th>
-                        <th>Email</th>
-                        <th>Total Kunjungan</th>
-                        <th>Status</th>
-                        <th>Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${this.guests.map(guest => `
+        if (container) {
+            container.innerHTML = `
+                <table class="data-table">
+                    <thead>
                         <tr>
-                            <td>${guest.id}</td>
-                            <td>${guest.name}</td>
-                            <td>${guest.phone}</td>
-                            <td>${guest.email || '-'}</td>
-                            <td>${guest.visits}</td>
-                            <td><span class="status-badge ${guest.status}">${guest.status}</span></td>
-                            <td>
-                                <button class="btn btn-small btn-primary" onclick="guestsManager.viewGuestDetails('${guest.id}')">Detail</button>
-                                <button class="btn btn-small btn-secondary" onclick="guestsManager.editGuest('${guest.id}')">Edit</button>
-                            </td>
+                            <th>ID Tamu</th>
+                            <th>Nama</th>
+                            <th>No. Telepon</th>
+                            <th>Email</th>
+                            <th>Total Kunjungan</th>
+                            <th>Status</th>
+                            <th>Aksi</th>
                         </tr>
-                    `).join('')}
-                </tbody>
-            </table>
-        `;
+                    </thead>
+                    <tbody>
+                        ${this.guests.map(guest => `
+                            <tr>
+                                <td>${guest.id}</td>
+                                <td>${guest.fullName || guest.name}</td>
+                                <td>${guest.phoneNumber || guest.phone}</td>
+                                <td>${guest.email || '-'}</td>
+                                <td>${guest.visits || 0}</td>
+                                <td><span class="status-badge ${guest.status}">${guest.status}</span></td>
+                                <td>
+                                    <button class="btn btn-small btn-primary" onclick="window.guestsManager.viewGuestDetails('${guest.id}')">Detail</button>
+                                    <button class="btn btn-small btn-secondary" onclick="window.guestsManager.editGuest('${guest.id}')">Edit</button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        // Render for guests-list (tbody)
+        const tbody = document.getElementById('guests-list');
+        if (tbody) {
+            if (this.guests.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center">Tidak ada data tamu</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = this.guests.map(guest => `
+                <tr>
+                    <td>${guest.idNumber || guest.idCard || '-'}</td>
+                    <td>${guest.fullName || guest.name}</td>
+                    <td>${guest.email || '-'}</td>
+                    <td>${guest.phoneNumber || guest.phone}</td>
+                    <td>${guest.city || '-'}</td>
+                    <td>${guest.visits || 0}</td>
+                    <td>
+                        <button class="btn btn-sm btn-primary" onclick="window.guestsManager.viewGuestDetails('${guest.id}')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn btn-sm btn-secondary" onclick="window.guestsManager.editGuest('${guest.id}')">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-danger" onclick="window.guestsManager.deleteGuest('${guest.id}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
     }
 
     showGuestForm() {
