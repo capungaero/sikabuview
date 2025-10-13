@@ -117,6 +117,13 @@ class BookingManager {
                 this.hideAddBookingForm();
                 await this.loadBookings();
                 this.updateDashboardStats();
+                
+                // Reload calendar if available
+                if (window.calendarManager) {
+                    await window.calendarManager.loadData();
+                    window.calendarManager.renderCalendar();
+                }
+                
                 event.target.reset();
                 this.setDefaultDates();
             }
@@ -327,6 +334,13 @@ class BookingManager {
             await window.dbManager.update('bookings', id, { status });
             await this.loadBookings();
             this.updateDashboardStats();
+            
+            // Reload calendar if available
+            if (window.calendarManager) {
+                await window.calendarManager.loadData();
+                window.calendarManager.renderCalendar();
+            }
+            
             this.showSuccess(`Status booking berhasil diubah ke ${this.getStatusLabel(status)}`);
         } catch (error) {
             this.showError('Error mengubah status: ' + error.message);

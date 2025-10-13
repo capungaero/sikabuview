@@ -584,11 +584,20 @@ class CalendarManager {
         let occupiedRooms = 0;
 
         this.bookings.forEach(booking => {
-            if (booking.status === 'confirmed' || booking.status === 'checked-in') {
-                const checkIn = new Date(booking.checkInDate);
-                const checkOut = new Date(booking.checkOutDate);
-                if (date >= checkIn && date < checkOut) {
-                    occupiedRooms++;
+            if (booking.status === 'confirmed' || booking.status === 'checked-in' || booking.status === 'checkedin') {
+                // Support both naming conventions: checkinDate/checkoutDate and checkInDate/checkOutDate
+                const checkInField = booking.checkinDate || booking.checkInDate;
+                const checkOutField = booking.checkoutDate || booking.checkOutDate;
+                
+                if (checkInField && checkOutField) {
+                    const checkIn = new Date(checkInField);
+                    const checkOut = new Date(checkOutField);
+                    const checkDate = new Date(dateStr);
+                    
+                    // Check if date falls within booking period (inclusive check-in, exclusive check-out)
+                    if (checkDate >= checkIn && checkDate < checkOut) {
+                        occupiedRooms++;
+                    }
                 }
             }
         });
@@ -637,10 +646,16 @@ class CalendarManager {
     isRoomOccupiedOnDate(roomId, dateStr) {
         const date = new Date(dateStr);
         return this.bookings.some(booking => {
-            if (booking.roomId === roomId && (booking.status === 'confirmed' || booking.status === 'checked-in')) {
-                const checkIn = new Date(booking.checkInDate);
-                const checkOut = new Date(booking.checkOutDate);
-                return date >= checkIn && date < checkOut;
+            if (booking.roomId === roomId && (booking.status === 'confirmed' || booking.status === 'checked-in' || booking.status === 'checkedin')) {
+                // Support both naming conventions
+                const checkInField = booking.checkinDate || booking.checkInDate;
+                const checkOutField = booking.checkoutDate || booking.checkOutDate;
+                
+                if (checkInField && checkOutField) {
+                    const checkIn = new Date(checkInField);
+                    const checkOut = new Date(checkOutField);
+                    return date >= checkIn && date < checkOut;
+                }
             }
             return false;
         });
@@ -652,10 +667,17 @@ class CalendarManager {
         
         // Get bookings for this date
         const dayBookings = this.bookings.filter(booking => {
-            const checkIn = new Date(booking.checkInDate);
-            const checkOut = new Date(booking.checkOutDate);
-            return date >= checkIn && date < checkOut && 
-                   (booking.status === 'confirmed' || booking.status === 'checked-in');
+            // Support both naming conventions
+            const checkInField = booking.checkinDate || booking.checkInDate;
+            const checkOutField = booking.checkoutDate || booking.checkOutDate;
+            
+            if (checkInField && checkOutField) {
+                const checkIn = new Date(checkInField);
+                const checkOut = new Date(checkOutField);
+                return date >= checkIn && date < checkOut && 
+                       (booking.status === 'confirmed' || booking.status === 'checked-in' || booking.status === 'checkedin');
+            }
+            return false;
         });
 
         let detailsHTML = `
@@ -868,6 +890,12 @@ class CheckInOutManager {
             hideCheckinForm();
             await this.loadData();
             
+            // Reload calendar if available
+            if (window.calendarManager && window.calendarManager !== this) {
+                await window.calendarManager.loadData();
+                window.calendarManager.renderCalendar();
+            }
+            
             // Clear form
             document.getElementById('add-checkin-form').reset();
             
@@ -931,6 +959,12 @@ class CheckInOutManager {
             // Hide form and reload data
             hideCheckoutForm();
             await this.loadData();
+            
+            // Reload calendar if available
+            if (window.calendarManager && window.calendarManager !== this) {
+                await window.calendarManager.loadData();
+                window.calendarManager.renderCalendar();
+            }
             
             // Clear form
             document.getElementById('add-checkout-form').reset();

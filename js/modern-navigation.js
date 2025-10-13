@@ -104,6 +104,13 @@ function initModernNavigation() {
                 if (pageTitle && tabTitles[targetTab]) {
                     pageTitle.textContent = tabTitles[targetTab];
                 }
+                
+                // Reload calendar data when calendar tab is opened
+                if (targetTab === 'calendar' && window.calendarManager) {
+                    window.calendarManager.loadData().then(() => {
+                        window.calendarManager.renderCalendar();
+                    });
+                }
             }
             
             // Close sidebar on mobile after selection

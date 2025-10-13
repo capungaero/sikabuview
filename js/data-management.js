@@ -300,6 +300,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         window.dataManagement = new DataManagement();
         await window.dataManagement.init();
         console.log('Data Management initialized successfully');
+
+        // Add event listener for clear all data button
+        const clearBtn = document.getElementById('clear-all-data-btn');
+        if (clearBtn) {
+            clearBtn.addEventListener('click', async () => {
+                await clearAllData();
+            });
+        }
     } catch (error) {
         console.error('Error initializing Data Management:', error);
     }
