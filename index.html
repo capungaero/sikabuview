@@ -317,12 +317,117 @@
                 <div class="module-header">
                     <h2><i class="fas fa-door-open"></i> Check-in & Check-out</h2>
                     <div class="module-actions">
-                        <button class="btn btn-primary">
+                        <button class="btn btn-primary" onclick="showCheckinForm()">
                             <i class="fas fa-sign-in-alt"></i> Check-in
                         </button>
-                        <button class="btn btn-secondary">
+                        <button class="btn btn-secondary" onclick="showCheckoutForm()">
                             <i class="fas fa-sign-out-alt"></i> Check-out
                         </button>
+                    </div>
+                </div>
+
+                <!-- Check-in Form -->
+                <div id="checkin-form" class="form-container" style="display: none;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Proses Check-in</h3>
+                            <button class="btn btn-secondary" onclick="hideCheckinForm()">
+                                <i class="fas fa-times"></i> Batal
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <form id="add-checkin-form">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="checkin-booking-id">ID Booking</label>
+                                        <input type="text" id="checkin-booking-id" name="bookingId" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="checkin-guest-name">Nama Tamu</label>
+                                        <input type="text" id="checkin-guest-name" name="guestName" readonly>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="checkin-room-number">Nomor Kamar/Villa</label>
+                                        <input type="text" id="checkin-room-number" name="roomNumber" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="checkin-actual-time">Waktu Check-in</label>
+                                        <input type="datetime-local" id="checkin-actual-time" name="actualTime" required>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="checkin-notes">Catatan</label>
+                                    <textarea id="checkin-notes" name="notes" rows="2"></textarea>
+                                </div>
+                                <div class="form-actions">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save"></i> Proses Check-in
+                                    </button>
+                                    <button type="button" class="btn btn-secondary" onclick="hideCheckinForm()">
+                                        <i class="fas fa-times"></i> Batal
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Check-out Form -->
+                <div id="checkout-form" class="form-container" style="display: none;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Proses Check-out</h3>
+                            <button class="btn btn-secondary" onclick="hideCheckoutForm()">
+                                <i class="fas fa-times"></i> Batal
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <form id="add-checkout-form">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="checkout-booking-id">ID Booking</label>
+                                        <input type="text" id="checkout-booking-id" name="bookingId" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="checkout-guest-name">Nama Tamu</label>
+                                        <input type="text" id="checkout-guest-name" name="guestName" readonly>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="checkout-room-number">Nomor Kamar/Villa</label>
+                                        <input type="text" id="checkout-room-number" name="roomNumber" readonly>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="checkout-actual-time">Waktu Check-out</label>
+                                        <input type="datetime-local" id="checkout-actual-time" name="actualTime" required>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="checkout-condition">Kondisi Kamar</label>
+                                    <select id="checkout-condition" name="condition" required>
+                                        <option value="">Pilih Kondisi</option>
+                                        <option value="baik">Baik</option>
+                                        <option value="perlu-cleaning">Perlu Cleaning</option>
+                                        <option value="perlu-perbaikan">Perlu Perbaikan</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="checkout-notes">Catatan</label>
+                                    <textarea id="checkout-notes" name="notes" rows="2"></textarea>
+                                </div>
+                                <div class="form-actions">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save"></i> Proses Check-out
+                                    </button>
+                                    <button type="button" class="btn btn-secondary" onclick="hideCheckoutForm()">
+                                        <i class="fas fa-times"></i> Batal
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
 
@@ -331,7 +436,26 @@
                         <h3><i class="fas fa-list"></i> Daftar Check-in/out Hari Ini</h3>
                     </div>
                     <div class="card-body">
-                        <p>Fitur check-in dan check-out akan ditampilkan di sini</p>
+                        <div class="table-container">
+                            <table id="checkin-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID Booking</th>
+                                        <th>Nama Tamu</th>
+                                        <th>Kamar/Villa</th>
+                                        <th>Check-in</th>
+                                        <th>Check-out</th>
+                                        <th>Status</th>
+                                        <th>Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="checkin-list">
+                                    <tr>
+                                        <td colspan="7" class="text-center">Tidak ada data check-in/out hari ini</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -341,9 +465,82 @@
                 <div class="module-header">
                     <h2><i class="fas fa-credit-card"></i> Manajemen Pembayaran</h2>
                     <div class="module-actions">
-                        <button class="btn btn-primary">
+                        <button class="btn btn-primary" onclick="showAddPaymentForm()">
                             <i class="fas fa-plus"></i> Proses Pembayaran
                         </button>
+                    </div>
+                </div>
+
+                <!-- Payment Form -->
+                <div id="payment-form" class="form-container" style="display: none;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Proses Pembayaran</h3>
+                            <button class="btn btn-secondary" onclick="hidePaymentForm()">
+                                <i class="fas fa-times"></i> Batal
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <form id="add-payment-form">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="payment-booking-id">ID Booking</label>
+                                        <input type="text" id="payment-booking-id" name="bookingId" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="payment-guest-name">Nama Tamu</label>
+                                        <input type="text" id="payment-guest-name" name="guestName" readonly>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="payment-amount">Jumlah Total (Rp)</label>
+                                        <input type="number" id="payment-amount" name="amount" readonly>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="payment-paid">Jumlah Dibayar (Rp)</label>
+                                        <input type="number" id="payment-paid" name="paidAmount" min="0" step="1000" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="payment-method">Metode Pembayaran</label>
+                                        <select id="payment-method" name="paymentMethod" required>
+                                            <option value="">Pilih Metode</option>
+                                            <option value="cash">Cash</option>
+                                            <option value="transfer">Transfer Bank</option>
+                                            <option value="card">Kartu Kredit/Debit</option>
+                                            <option value="ewallet">E-Wallet</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="payment-date">Tanggal Pembayaran</label>
+                                        <input type="datetime-local" id="payment-date" name="paymentDate" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="payment-reference">Nomor Referensi</label>
+                                    <input type="text" id="payment-reference" name="reference" placeholder="Nomor transaksi/bukti transfer (opsional)">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="payment-notes">Catatan</label>
+                                    <textarea id="payment-notes" name="notes" rows="2"></textarea>
+                                </div>
+                                
+                                <div class="form-actions">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save"></i> Simpan Pembayaran
+                                    </button>
+                                    <button type="button" class="btn btn-secondary" onclick="hidePaymentForm()">
+                                        <i class="fas fa-times"></i> Batal
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
 
@@ -352,7 +549,27 @@
                         <h3><i class="fas fa-list"></i> Riwayat Pembayaran</h3>
                     </div>
                     <div class="card-body">
-                        <p>Daftar pembayaran akan ditampilkan di sini</p>
+                        <div class="table-container">
+                            <table id="payment-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Tanggal</th>
+                                        <th>ID Booking</th>
+                                        <th>Nama Tamu</th>
+                                        <th>Jumlah</th>
+                                        <th>Metode</th>
+                                        <th>Status</th>
+                                        <th>Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="payment-list">
+                                    <tr>
+                                        <td colspan="8" class="text-center">Tidak ada data pembayaran</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -362,9 +579,92 @@
                 <div class="module-header">
                     <h2><i class="fas fa-broom"></i> Manajemen Housekeeping</h2>
                     <div class="module-actions">
-                        <button class="btn btn-primary">
+                        <button class="btn btn-primary" onclick="showAddTaskForm()">
                             <i class="fas fa-plus"></i> Tambah Tugas
                         </button>
+                    </div>
+                </div>
+
+                <!-- Task Form -->
+                <div id="task-form" class="form-container" style="display: none;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Tambah Tugas Housekeeping</h3>
+                            <button class="btn btn-secondary" onclick="hideTaskForm()">
+                                <i class="fas fa-times"></i> Batal
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <form id="add-task-form">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="task-room-number">Nomor Kamar/Villa</label>
+                                        <input type="text" id="task-room-number" name="roomNumber" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="task-type">Jenis Tugas</label>
+                                        <select id="task-type" name="taskType" required>
+                                            <option value="">Pilih Jenis</option>
+                                            <option value="cleaning">Cleaning Rutin</option>
+                                            <option value="deep-clean">Deep Cleaning</option>
+                                            <option value="maintenance">Maintenance</option>
+                                            <option value="inspection">Inspeksi</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="task-assigned-to">Ditugaskan Ke</label>
+                                        <input type="text" id="task-assigned-to" name="assignedTo" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="task-priority">Prioritas</label>
+                                        <select id="task-priority" name="priority" required>
+                                            <option value="">Pilih Prioritas</option>
+                                            <option value="low">Rendah</option>
+                                            <option value="medium">Sedang</option>
+                                            <option value="high">Tinggi</option>
+                                            <option value="urgent">Mendesak</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="task-due-date">Deadline</label>
+                                        <input type="datetime-local" id="task-due-date" name="dueDate" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="task-status">Status</label>
+                                        <select id="task-status" name="status" required>
+                                            <option value="pending">Pending</option>
+                                            <option value="in-progress">Sedang Dikerjakan</option>
+                                            <option value="completed">Selesai</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="task-description">Deskripsi Tugas</label>
+                                    <textarea id="task-description" name="description" rows="3" required></textarea>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="task-notes">Catatan</label>
+                                    <textarea id="task-notes" name="notes" rows="2"></textarea>
+                                </div>
+                                
+                                <div class="form-actions">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save"></i> Simpan Tugas
+                                    </button>
+                                    <button type="button" class="btn btn-secondary" onclick="hideTaskForm()">
+                                        <i class="fas fa-times"></i> Batal
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
 
@@ -373,7 +673,27 @@
                         <h3><i class="fas fa-tasks"></i> Daftar Tugas Cleaning</h3>
                     </div>
                     <div class="card-body">
-                        <p>Daftar tugas housekeeping akan ditampilkan di sini</p>
+                        <div class="table-container">
+                            <table id="housekeeping-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Kamar/Villa</th>
+                                        <th>Jenis Tugas</th>
+                                        <th>Ditugaskan Ke</th>
+                                        <th>Prioritas</th>
+                                        <th>Deadline</th>
+                                        <th>Status</th>
+                                        <th>Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="housekeeping-list">
+                                    <tr>
+                                        <td colspan="8" class="text-center">Tidak ada tugas housekeeping</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -383,9 +703,98 @@
                 <div class="module-header">
                     <h2><i class="fas fa-bed"></i> Konfigurasi Kamar & Harga</h2>
                     <div class="module-actions">
-                        <button class="btn btn-primary">
+                        <button class="btn btn-primary" onclick="showAddRoomForm()">
                             <i class="fas fa-plus"></i> Tambah Kamar
                         </button>
+                    </div>
+                </div>
+
+                <!-- Room Form -->
+                <div id="room-form" class="form-container" style="display: none;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Tambah Kamar/Villa</h3>
+                            <button class="btn btn-secondary" onclick="hideRoomForm()">
+                                <i class="fas fa-times"></i> Batal
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <form id="add-room-form">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="room-number">Nomor Kamar/Villa</label>
+                                        <input type="text" id="room-number" name="roomNumber" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="room-type">Jenis Akomodasi</label>
+                                        <select id="room-type" name="roomType" required>
+                                            <option value="">Pilih Jenis</option>
+                                            <option value="kamar">Kamar</option>
+                                            <option value="villa">Villa</option>
+                                            <option value="camping">Camping Ground</option>
+                                            <option value="tent">Tenda</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="room-name">Nama/Kategori</label>
+                                        <input type="text" id="room-name" name="roomName" placeholder="Contoh: Deluxe, Standard, Family" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="room-capacity">Kapasitas (Orang)</label>
+                                        <input type="number" id="room-capacity" name="capacity" min="1" value="2" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="room-price-weekday">Harga Weekday (Rp)</label>
+                                        <input type="number" id="room-price-weekday" name="priceWeekday" min="0" step="5000" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="room-price-weekend">Harga Weekend (Rp)</label>
+                                        <input type="number" id="room-price-weekend" name="priceWeekend" min="0" step="5000" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="room-facilities">Fasilitas</label>
+                                    <textarea id="room-facilities" name="facilities" rows="2" placeholder="AC, TV, WiFi, dll"></textarea>
+                                </div>
+                                
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="room-status">Status</label>
+                                        <select id="room-status" name="status" required>
+                                            <option value="tersedia">Tersedia</option>
+                                            <option value="terisi">Terisi</option>
+                                            <option value="maintenance">Maintenance</option>
+                                            <option value="tidak-aktif">Tidak Aktif</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="room-floor">Lantai/Lokasi</label>
+                                        <input type="text" id="room-floor" name="floor" placeholder="Lantai 1, Area A, dll">
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="room-notes">Catatan</label>
+                                    <textarea id="room-notes" name="notes" rows="2"></textarea>
+                                </div>
+                                
+                                <div class="form-actions">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save"></i> Simpan Kamar
+                                    </button>
+                                    <button type="button" class="btn btn-secondary" onclick="hideRoomForm()">
+                                        <i class="fas fa-times"></i> Batal
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
 
@@ -394,7 +803,27 @@
                         <h3><i class="fas fa-list"></i> Daftar Kamar</h3>
                     </div>
                     <div class="card-body">
-                        <p>Daftar kamar dan villa akan ditampilkan di sini</p>
+                        <div class="table-container">
+                            <table id="rooms-table">
+                                <thead>
+                                    <tr>
+                                        <th>Nomor</th>
+                                        <th>Jenis</th>
+                                        <th>Nama/Kategori</th>
+                                        <th>Kapasitas</th>
+                                        <th>Harga Weekday</th>
+                                        <th>Harga Weekend</th>
+                                        <th>Status</th>
+                                        <th>Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="rooms-list">
+                                    <tr>
+                                        <td colspan="8" class="text-center">Tidak ada data kamar/villa</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -404,9 +833,102 @@
                 <div class="module-header">
                     <h2><i class="fas fa-users"></i> Database Tamu</h2>
                     <div class="module-actions">
-                        <button class="btn btn-primary">
+                        <button class="btn btn-primary" onclick="showAddGuestForm()">
                             <i class="fas fa-plus"></i> Registrasi Tamu
                         </button>
+                    </div>
+                </div>
+
+                <!-- Guest Form -->
+                <div id="guest-form" class="form-container" style="display: none;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Registrasi Tamu Baru</h3>
+                            <button class="btn btn-secondary" onclick="hideGuestForm()">
+                                <i class="fas fa-times"></i> Batal
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <form id="add-guest-form">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="guest-id-number">ID/KTP</label>
+                                        <input type="text" id="guest-id-number" name="idNumber" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="guest-full-name">Nama Lengkap</label>
+                                        <input type="text" id="guest-full-name" name="fullName" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="guest-email">Email</label>
+                                        <input type="email" id="guest-email" name="email" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="guest-phone-number">No. Telepon</label>
+                                        <input type="tel" id="guest-phone-number" name="phoneNumber" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="guest-birth-date">Tanggal Lahir</label>
+                                        <input type="date" id="guest-birth-date" name="birthDate">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="guest-gender">Jenis Kelamin</label>
+                                        <select id="guest-gender" name="gender">
+                                            <option value="">Pilih</option>
+                                            <option value="L">Laki-laki</option>
+                                            <option value="P">Perempuan</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="guest-address">Alamat Lengkap</label>
+                                    <textarea id="guest-address" name="address" rows="2" required></textarea>
+                                </div>
+                                
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="guest-city">Kota</label>
+                                        <input type="text" id="guest-city" name="city" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="guest-country">Negara</label>
+                                        <input type="text" id="guest-country" name="country" value="Indonesia" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="guest-nationality">Kewarganegaraan</label>
+                                        <input type="text" id="guest-nationality" name="nationality" value="Indonesia">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="guest-occupation">Pekerjaan</label>
+                                        <input type="text" id="guest-occupation" name="occupation">
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="guest-notes">Catatan Khusus</label>
+                                    <textarea id="guest-notes" name="notes" rows="2" placeholder="Alergi, preferensi, dll"></textarea>
+                                </div>
+                                
+                                <div class="form-actions">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save"></i> Simpan Tamu
+                                    </button>
+                                    <button type="button" class="btn btn-secondary" onclick="hideGuestForm()">
+                                        <i class="fas fa-times"></i> Batal
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
 
@@ -415,7 +937,26 @@
                         <h3><i class="fas fa-list"></i> Daftar Tamu</h3>
                     </div>
                     <div class="card-body">
-                        <p>Database tamu akan ditampilkan di sini</p>
+                        <div class="table-container">
+                            <table id="guests-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID/KTP</th>
+                                        <th>Nama Lengkap</th>
+                                        <th>Email</th>
+                                        <th>Telepon</th>
+                                        <th>Kota</th>
+                                        <th>Kunjungan</th>
+                                        <th>Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="guests-list">
+                                    <tr>
+                                        <td colspan="7" class="text-center">Tidak ada data tamu</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -500,9 +1041,100 @@
                 <div class="module-header">
                     <h2><i class="fas fa-coins"></i> Modul Keuangan</h2>
                     <div class="module-actions">
-                        <button class="btn btn-primary">
+                        <button class="btn btn-primary" onclick="showAddFinanceForm()">
                             <i class="fas fa-plus"></i> Tambah Transaksi
                         </button>
+                    </div>
+                </div>
+
+                <!-- Finance Form -->
+                <div id="finance-form" class="form-container" style="display: none;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Tambah Transaksi Keuangan</h3>
+                            <button class="btn btn-secondary" onclick="hideFinanceForm()">
+                                <i class="fas fa-times"></i> Batal
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <form id="add-finance-form">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="finance-type">Jenis Transaksi</label>
+                                        <select id="finance-type" name="transactionType" required>
+                                            <option value="">Pilih Jenis</option>
+                                            <option value="income">Pemasukan</option>
+                                            <option value="expense">Pengeluaran</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="finance-category">Kategori</label>
+                                        <select id="finance-category" name="category" required>
+                                            <option value="">Pilih Kategori</option>
+                                            <optgroup label="Pemasukan">
+                                                <option value="room-payment">Pembayaran Kamar</option>
+                                                <option value="additional-service">Layanan Tambahan</option>
+                                                <option value="other-income">Lain-lain</option>
+                                            </optgroup>
+                                            <optgroup label="Pengeluaran">
+                                                <option value="supplies">Perlengkapan</option>
+                                                <option value="maintenance">Pemeliharaan</option>
+                                                <option value="utilities">Utilitas (Listrik, Air)</option>
+                                                <option value="salary">Gaji Karyawan</option>
+                                                <option value="other-expense">Lain-lain</option>
+                                            </optgroup>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="finance-amount">Jumlah (Rp)</label>
+                                        <input type="number" id="finance-amount" name="amount" min="0" step="1000" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="finance-date">Tanggal Transaksi</label>
+                                        <input type="datetime-local" id="finance-date" name="transactionDate" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="finance-payment-method">Metode Pembayaran</label>
+                                        <select id="finance-payment-method" name="paymentMethod">
+                                            <option value="">Pilih Metode</option>
+                                            <option value="cash">Cash</option>
+                                            <option value="transfer">Transfer Bank</option>
+                                            <option value="card">Kartu Kredit/Debit</option>
+                                            <option value="ewallet">E-Wallet</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="finance-reference">Nomor Referensi</label>
+                                        <input type="text" id="finance-reference" name="reference" placeholder="Invoice, kwitansi, dll">
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="finance-description">Deskripsi</label>
+                                    <textarea id="finance-description" name="description" rows="2" required></textarea>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="finance-notes">Catatan</label>
+                                    <textarea id="finance-notes" name="notes" rows="2"></textarea>
+                                </div>
+                                
+                                <div class="form-actions">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save"></i> Simpan Transaksi
+                                    </button>
+                                    <button type="button" class="btn btn-secondary" onclick="hideFinanceForm()">
+                                        <i class="fas fa-times"></i> Batal
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
 

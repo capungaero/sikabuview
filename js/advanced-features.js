@@ -926,3 +926,29 @@ document.addEventListener('DOMContentLoaded', async function() {
         console.error('Failed to initialize advanced feature managers:', error);
     }
 });
+
+// --- Show/Hide Form Utilities for All Modules ---
+function showCheckinForm() {
+    document.getElementById('checkin-form').style.display = 'block';
+}
+function hideCheckinForm() {
+    document.getElementById('checkin-form').style.display = 'none';
+}
+function showCheckoutForm() {
+    document.getElementById('checkout-form').style.display = 'block';
+}
+function hideCheckoutForm() {
+    document.getElementById('checkout-form').style.display = 'none';
+}
+function showAddPaymentForm() {
+    document.getElementById('payment-form').style.display = 'block';
+}
+function hidePaymentForm() {
+    document.getElementById('payment-form').style.display = 'none';
+}
+function showAddFinanceForm() {
+    document.getElementById('finance-form').style.display = 'block';
+}
+function hideFinanceForm() {
+    document.getElementById('finance-form').style.display = 'none';
+}
