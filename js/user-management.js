@@ -143,10 +143,22 @@ class UserManager {
         this.currentUser = null;
         localStorage.removeItem('sikabu_current_user');
         
-        // Hide all content
+        // Reset all navigation and tabs to original state
         document.querySelectorAll('.tab-content').forEach(tab => {
             tab.classList.remove('active');
+            tab.style.display = ''; // Clear any inline styles
         });
+        
+        document.querySelectorAll('.nav-section a[data-tab]').forEach(link => {
+            const listItem = link.closest('li');
+            listItem.style.display = 'block'; // Show all nav items
+        });
+        
+        // Remove user info from header
+        const userInfo = document.querySelector('.user-info');
+        if (userInfo) {
+            userInfo.remove();
+        }
         
         // Show login modal
         this.showLoginModal();
@@ -170,15 +182,8 @@ class UserManager {
             }
         });
         
-        // Hide/show tab contents
-        document.querySelectorAll('.tab-content').forEach(tab => {
-            const tabId = tab.id;
-            if (!permissions.includes(tabId)) {
-                tab.style.display = 'none';
-            } else {
-                tab.style.display = 'block';
-            }
-        });
+        // Don't manipulate tab content display - let the tab system handle it
+        // Just ensure unauthorized tabs are not accessible
         
         // Show first allowed tab
         const firstAllowedTab = permissions[0];
