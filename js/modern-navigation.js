@@ -7,33 +7,41 @@ document.addEventListener('DOMContentLoaded', function() {
 // Mobile Menu Toggle
 function toggleMobileMenu() {
     const sidebar = document.querySelector('.sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    
     sidebar.classList.toggle('open');
+    
+    if (overlay) {
+        overlay.classList.toggle('active');
+    }
 }
 
 function closeMobileMenu() {
     const sidebar = document.querySelector('.sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    
     sidebar.classList.remove('open');
+    
+    if (overlay) {
+        overlay.classList.remove('active');
+    }
 }
 
 function initMobileMenu() {
-    // Close menu when clicking outside on mobile
-    document.addEventListener('click', function(e) {
-        const sidebar = document.querySelector('.sidebar');
-        const menuToggle = document.querySelector('.mobile-menu-toggle');
-        
-        if (sidebar && sidebar.classList.contains('open')) {
-            if (!sidebar.contains(e.target) && !menuToggle.contains(e.target)) {
-                closeMobileMenu();
-            }
-        }
-    });
+    // Close menu when clicking overlay
+    const overlay = document.getElementById('sidebar-overlay');
+    if (overlay) {
+        overlay.addEventListener('click', closeMobileMenu);
+        overlay.addEventListener('touchstart', closeMobileMenu);
+    }
     
     // Close menu when clicking on a nav link on mobile
     const navLinks = document.querySelectorAll('.nav-section a[data-tab]');
     navLinks.forEach(link => {
         link.addEventListener('click', function() {
             if (window.innerWidth <= 1024) {
-                closeMobileMenu();
+                // Close menu with slight delay for better UX
+                setTimeout(closeMobileMenu, 100);
             }
         });
     });
@@ -44,8 +52,7 @@ function initMobileMenu() {
         clearTimeout(resizeTimer);
         resizeTimer = setTimeout(function() {
             if (window.innerWidth > 1024) {
-                const sidebar = document.querySelector('.sidebar');
-                sidebar.classList.remove('open');
+                closeMobileMenu();
             }
         }, 250);
     });
