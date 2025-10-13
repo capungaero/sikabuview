@@ -1,7 +1,55 @@
 // Navigation handler untuk sidebar modern
 document.addEventListener('DOMContentLoaded', function() {
     initModernNavigation();
+    initMobileMenu();
 });
+
+// Mobile Menu Toggle
+function toggleMobileMenu() {
+    const sidebar = document.querySelector('.sidebar');
+    sidebar.classList.toggle('open');
+}
+
+function closeMobileMenu() {
+    const sidebar = document.querySelector('.sidebar');
+    sidebar.classList.remove('open');
+}
+
+function initMobileMenu() {
+    // Close menu when clicking outside on mobile
+    document.addEventListener('click', function(e) {
+        const sidebar = document.querySelector('.sidebar');
+        const menuToggle = document.querySelector('.mobile-menu-toggle');
+        
+        if (sidebar && sidebar.classList.contains('open')) {
+            if (!sidebar.contains(e.target) && !menuToggle.contains(e.target)) {
+                closeMobileMenu();
+            }
+        }
+    });
+    
+    // Close menu when clicking on a nav link on mobile
+    const navLinks = document.querySelectorAll('.nav-section a[data-tab]');
+    navLinks.forEach(link => {
+        link.addEventListener('click', function() {
+            if (window.innerWidth <= 1024) {
+                closeMobileMenu();
+            }
+        });
+    });
+    
+    // Handle window resize
+    let resizeTimer;
+    window.addEventListener('resize', function() {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(function() {
+            if (window.innerWidth > 1024) {
+                const sidebar = document.querySelector('.sidebar');
+                sidebar.classList.remove('open');
+            }
+        }, 250);
+    });
+}
 
 function initModernNavigation() {
     // Handle tab switching
