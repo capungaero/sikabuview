@@ -445,14 +445,14 @@ class BookingManager {
     showModal() {
         const modal = document.getElementById('modal');
         if (modal) {
-            modal.style.display = 'block';
+            modal.classList.add('show');
         }
     }
     
     closeModal() {
         const modal = document.getElementById('modal');
         if (modal) {
-            modal.style.display = 'none';
+            modal.classList.remove('show');
         }
     }
     

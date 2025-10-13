@@ -308,6 +308,16 @@ document.addEventListener('DOMContentLoaded', async () => {
                 await clearAllData();
             });
         }
+
+        // Add event listener for import file input
+        const importInput = document.getElementById('import-file');
+        if (importInput) {
+            importInput.addEventListener('change', async (e) => {
+                if (e.target.files && e.target.files[0]) {
+                    await importData(e.target);
+                }
+            });
+        }
     } catch (error) {
         console.error('Error initializing Data Management:', error);
     }

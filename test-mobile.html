@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile Menu Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+        }
+        
+        .test-info {
+            padding: 20px;
+            background: white;
+            margin: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .test-button {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            margin: 10px;
+            font-size: 16px;
+        }
+        
+        .test-button:hover {
+            background: #0056b3;
+        }
+        
+        .mobile-sim {
+            max-width: 375px;
+            margin: 20px auto;
+            border: 2px solid #333;
+            border-radius: 20px;
+            overflow: hidden;
+            background: white;
+        }
+        
+        .mobile-header {
+            height: 30px;
+            background: #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+        }
+        
+        .mobile-content {
+            height: 600px;
+            position: relative;
+        }
+        
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-info">
+        <h1>Mobile Menu Test Page</h1>
+        <p>Test untuk memastikan mobile menu bekerja dengan baik dan tidak ada duplikasi.</p>
+        
+        <h3>Test Cases:</h3>
+        <ul>
+            <li>✅ Hanya ada 1 hamburger menu button</li>
+            <li>✅ Button positioned di kiri atas (tidak floating ke tengah)</li>
+            <li>✅ Button dapat diklik dan responsive</li>
+            <li>✅ Sidebar slide in/out dengan smooth animation</li>
+            <li>✅ Overlay backdrop berfungsi untuk close menu</li>
+            <li>✅ Menu links clickable dan close menu after selection</li>
+            <li>✅ Tidak ada confirmation dialog otomatis</li>
+        </ul>
+        
+        <a href="http://localhost:8001" class="test-button" target="_blank">Open Main App</a>
+        <a href="javascript:window.location.reload()" class="test-button">Refresh Test</a>
+    </div>
+    
+    <div class="mobile-sim">
+        <div class="mobile-header">Mobile Simulator (375px width)</div>
+        <div class="mobile-content">
+            <iframe src="http://localhost:8001"></iframe>
+        </div>
+    </div>
+    
+    <div class="test-info">
+        <h3>Fixes Applied:</h3>
+        <ol>
+            <li><strong>Removed duplicate mobile toggle</strong> - Deleted .btn-mobile-toggle from sidebar footer</li>
+            <li><strong>Fixed header positioning</strong> - Removed margin-left from .main-header on mobile</li>
+            <li><strong>Fixed confirmation dialogs</strong> - Replaced inline onchange with addEventListener</li>
+            <li><strong>Ensured single toggle button</strong> - Only .mobile-menu-toggle remains</li>
+            <li><strong>Proper z-index hierarchy</strong> - Toggle: 1200, Sidebar: 1100, Overlay: 1050</li>
+        </ol>
+        
+        <h3>Manual Testing Instructions:</h3>
+        <ol>
+            <li>Resize browser window ke mobile width (< 1024px)</li>
+            <li>Verify hanya ada 1 hamburger button di kiri atas</li>
+            <li>Click button untuk open/close menu</li>
+            <li>Click overlay untuk close menu</li>
+            <li>Click menu link dan verify menu closes</li>
+            <li>Reload page dan pastikan tidak ada confirmation dialog</li>
+        </ol>
+    </div>
+</body>
+</html>

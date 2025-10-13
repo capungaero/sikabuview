@@ -73,9 +73,6 @@
             </nav>
 
             <div class="sidebar-footer">
-                <button class="btn-mobile-toggle" id="mobile-toggle">
-                    <i class="fas fa-bars"></i>
-                </button>
             </div>
         </aside>
 
@@ -1285,7 +1282,7 @@
                                 <button class="btn btn-secondary" onclick="document.getElementById('import-file').click()">
                                     <i class="fas fa-upload"></i> Import Data
                                 </button>
-                                <input type="file" id="import-file" accept=".json" style="display: none;" onchange="importData(this)">
+                                <input type="file" id="import-file" accept=".json" style="display: none;">
                             </div>
                         </div>
                     </div>
@@ -1322,18 +1319,20 @@
     </div>
 
     <!-- Modal for confirmations -->
-    <div id="modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="modal-title">Konfirmasi</h3>
-                <span class="close" onclick="closeModal()">&times;</span>
-            </div>
-            <div class="modal-body">
-                <p id="modal-message">Apakah Anda yakin?</p>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-primary" id="modal-confirm">Ya</button>
-                <button class="btn btn-secondary" onclick="closeModal()">Batal</button>
+    <div id="modal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 id="modal-title">Konfirmasi</h3>
+                    <span class="close" onclick="closeModal()">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <p id="modal-message">Apakah Anda yakin?</p>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" id="modal-confirm">Ya</button>
+                    <button class="btn btn-secondary" onclick="closeModal()">Batal</button>
+                </div>
             </div>
         </div>
     </div>

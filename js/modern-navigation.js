@@ -35,16 +35,20 @@ function initMobileMenu() {
         overlay.addEventListener('touchstart', closeMobileMenu);
     }
     
-    // Close menu when clicking on a nav link on mobile
-    const navLinks = document.querySelectorAll('.nav-section a[data-tab]');
+    // Add close functionality to nav links
+    const navLinks = document.querySelectorAll('.nav-item a');
     navLinks.forEach(link => {
         link.addEventListener('click', function() {
+            // Close sidebar on mobile after selection
             if (window.innerWidth <= 1024) {
-                // Close menu with slight delay for better UX
-                setTimeout(closeMobileMenu, 100);
+                closeMobileMenu();
             }
         });
     });
+}
+
+// Enhanced modal functions
+function showModal(title, content) {
     
     // Handle window resize
     let resizeTimer;
@@ -120,60 +124,9 @@ function initModernNavigation() {
                 }
             }
             
-            // Close sidebar on mobile after selection
-            if (window.innerWidth <= 1024) {
-                document.querySelector('.sidebar').classList.remove('open');
-            }
-        });
-    });
-    
-    // Mobile menu toggle
-    const mobileToggle = document.createElement('button');
-    mobileToggle.className = 'mobile-menu-toggle btn btn-icon';
-    mobileToggle.innerHTML = '<i class="fas fa-bars"></i>';
-    mobileToggle.style.display = 'none';
-    
-    // Add mobile toggle functionality
-    mobileToggle.addEventListener('click', function() {
-        const sidebar = document.querySelector('.sidebar');
-        sidebar.classList.toggle('open');
-    });
-    
-    // Show/hide mobile toggle based on screen size
-    function checkScreenSize() {
-        if (window.innerWidth <= 1024) {
-            mobileToggle.style.display = 'flex';
-            const headerActions = document.querySelector('.header-actions');
-            if (headerActions && !headerActions.contains(mobileToggle)) {
-                headerActions.prepend(mobileToggle);
-            }
-        } else {
-            mobileToggle.style.display = 'none';
-            document.querySelector('.sidebar').classList.remove('open');
-        }
-    }
-    
-    // Check screen size on load and resize
-    checkScreenSize();
-    window.addEventListener('resize', checkScreenSize);
-    
-    // Close sidebar when clicking outside on mobile
-    document.addEventListener('click', function(e) {
-        const sidebar = document.querySelector('.sidebar');
-        const toggle = mobileToggle;
-        
-        if (window.innerWidth <= 1024 && 
-            sidebar && sidebar.classList.contains('open') && 
-            !sidebar.contains(e.target) && 
-            !toggle.contains(e.target)) {
-            sidebar.classList.remove('open');
-        }
-    });
-}
-
 // Enhanced modal functions
 function showModal(title, content) {
-    const modal = document.getElementById('modal-overlay');
+    const modal = document.getElementById('modal');
     const modalTitle = document.getElementById('modal-title');
     const modalBody = document.getElementById('modal-body');
     
@@ -191,7 +144,7 @@ function showModal(title, content) {
 }
 
 function closeModal() {
-    const modal = document.getElementById('modal-overlay');
+    const modal = document.getElementById('modal');
     if (modal) {
         modal.classList.remove('show');
     }
