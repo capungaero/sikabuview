@@ -18,6 +18,18 @@ class PaymentManager {
     }
     
     setupEventListeners() {
+        // Payment form submission
+        const paymentForm = document.getElementById('add-payment-form');
+        if (paymentForm) {
+            paymentForm.addEventListener('submit', (e) => this.handlePaymentSubmit(e));
+        }
+
+        // Auto-load booking data when booking ID is entered
+        const paymentBookingId = document.getElementById('payment-booking-id');
+        if (paymentBookingId) {
+            paymentBookingId.addEventListener('blur', (e) => this.loadBookingDataForPayment(e.target.value));
+        }
+
         // Payment booking selection
         const bookingSelect = document.getElementById('payment-booking-id');
         if (bookingSelect) {
@@ -49,6 +61,100 @@ class PaymentManager {
         } catch (error) {
             console.error('Error loading payments:', error);
             this.showError('Error memuat data pembayaran');
+        }
+    }
+
+    async loadBookingDataForPayment(bookingId) {
+        if (!bookingId) return;
+        
+        try {
+            await waitForDatabase();
+            const bookings = await window.dbManager.select('bookings');
+            const booking = bookings.find(b => b.id === bookingId);
+            
+            if (booking) {
+                document.getElementById('payment-guest-name').value = booking.guestName || '';
+                
+                // Calculate total amount
+                const totalAmount = booking.totalPrice || (booking.price * booking.quantity);
+                document.getElementById('payment-amount').value = totalAmount;
+                
+                // Set default paid amount
+                document.getElementById('payment-paid').value = totalAmount;
+                
+                // Set default date to now
+                const now = new Date();
+                document.getElementById('payment-date').value = now.toISOString().slice(0, 16);
+            } else {
+                showNotification('Booking ID tidak ditemukan!', 'warning');
+            }
+        } catch (error) {
+            console.error('Error loading booking for payment:', error);
+        }
+    }
+
+    async handlePaymentSubmit(e) {
+        e.preventDefault();
+        
+        const bookingId = document.getElementById('payment-booking-id').value;
+        const amount = parseFloat(document.getElementById('payment-amount').value);
+        const paidAmount = parseFloat(document.getElementById('payment-paid').value);
+        const paymentMethod = document.getElementById('payment-method').value;
+        const paymentDate = document.getElementById('payment-date').value;
+        const reference = document.getElementById('payment-reference').value;
+        const notes = document.getElementById('payment-notes').value;
+
+        try {
+            // Validate
+            if (!bookingId || !paymentMethod || !paymentDate) {
+                showNotification('Mohon lengkapi semua field yang wajib diisi!', 'warning');
+                return;
+            }
+
+            // Get booking data
+            const bookings = await window.dbManager.select('bookings');
+            const booking = bookings.find(b => b.id === bookingId);
+            
+            if (!booking) {
+                showNotification('Booking tidak ditemukan!', 'error');
+                return;
+            }
+
+            // Create payment record
+            const payment = {
+                id: 'PAY-' + Date.now(),
+                bookingId: bookingId,
+                guestName: booking.guestName,
+                amount: amount,
+                paidAmount: paidAmount,
+                paymentMethod: paymentMethod,
+                paymentDate: paymentDate,
+                reference: reference,
+                notes: notes,
+                status: paidAmount >= amount ? 'paid' : 'partial',
+                createdAt: new Date().toISOString()
+            };
+
+            await window.dbManager.insert('payments', payment);
+
+            // Update booking status if fully paid
+            if (paidAmount >= amount) {
+                booking.paymentStatus = 'paid';
+                booking.paidAt = paymentDate;
+                await window.dbManager.update('bookings', booking);
+            }
+
+            // Hide form and reload
+            hidePaymentForm();
+            await this.loadPayments();
+            
+            // Clear form
+            document.getElementById('add-payment-form').reset();
+            
+            showNotification('Pembayaran berhasil disimpan!', 'success');
+        } catch (error) {
+            console.error('Error processing payment:', error);
+            showNotification('Error saat memproses pembayaran: ' + error.message, 'error');
         }
     }
     
@@ -333,32 +439,37 @@ class PaymentManager {
         if (this.filteredPayments.length === 0) {
             paymentList.innerHTML = `
                 <tr>
-                    <td colspan="9" class="text-center">Tidak ada data pembayaran</td>
+                    <td colspan="8" class="text-center">Tidak ada data pembayaran</td>
                 </tr>
             `;
             return;
         }
         
-        paymentList.innerHTML = this.filteredPayments.map(payment => `
-            <tr>
-                <td>#${payment.id}</td>
-                <td>#${payment.bookingId}</td>
-                <td>${payment.guestName || '-'}</td>
-                <td>${this.formatDateTime(payment.paymentDate)}</td>
-                <td>${this.formatCurrency(payment.accommodationCost)}</td>
-                <td>${this.formatCurrency(payment.additionalCost)}</td>
-                <td><strong>${this.formatCurrency(payment.totalAmount)}</strong></td>
-                <td>${this.getPaymentMethodLabel(payment.paymentMethod)}</td>
-                <td>
-                    <button class="action-btn view" onclick="paymentManager.viewPayment(${payment.id})" title="Lihat Detail">
-                        👁️
-                    </button>
-                    <button class="action-btn edit" onclick="paymentManager.printReceipt(${payment.id})" title="Cetak Kwitansi">
-                        🖨️
-                    </button>
-                </td>
-            </tr>
-        `).join('');
+        paymentList.innerHTML = this.filteredPayments.map(payment => {
+            const statusBadge = payment.status === 'paid' ? 
+                '<span class="badge badge-success">Lunas</span>' : 
+                '<span class="badge badge-warning">Partial</span>';
+                
+            return `
+                <tr>
+                    <td>${payment.id}</td>
+                    <td>${this.formatDateTime(payment.paymentDate)}</td>
+                    <td>${payment.bookingId}</td>
+                    <td>${payment.guestName || '-'}</td>
+                    <td>${this.formatCurrency(payment.paidAmount)}</td>
+                    <td>${this.getPaymentMethodLabel(payment.paymentMethod)}</td>
+                    <td>${statusBadge}</td>
+                    <td>
+                        <button class="btn btn-sm btn-primary" onclick="window.paymentManager.viewPayment('${payment.id}')" title="Lihat Detail">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn btn-sm btn-secondary" onclick="window.paymentManager.printReceipt('${payment.id}')" title="Cetak Kwitansi">
+                            <i class="fas fa-print"></i>
+                        </button>
+                    </td>
+                </tr>
+            `;
+        }).join('');
     }
     
     async viewPayment(id) {
@@ -491,8 +602,10 @@ class PaymentManager {
     
     getPaymentMethodLabel(method) {
         const labels = {
-            'cash': 'Tunai',
+            'cash': 'Cash',
             'transfer': 'Transfer Bank',
+            'card': 'Kartu Kredit/Debit',
+            'ewallet': 'E-Wallet',
             'debit': 'Kartu Debit',
             'credit': 'Kartu Kredit',
             'digital': 'Digital Payment'

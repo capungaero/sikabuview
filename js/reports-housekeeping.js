@@ -31,6 +31,7 @@ class HousekeepingManager {
             }
             this.renderCleaningSchedule();
             this.renderMaintenanceTasks();
+            this.renderHousekeepingList();
         } catch (error) {
             console.error('Error loading tasks:', error);
             this.tasks = [];
@@ -56,15 +57,26 @@ class HousekeepingManager {
 
     async handleAddTask(e) {
         e.preventDefault();
+        
+        const roomNumber = document.getElementById('task-room-number')?.value;
+        const taskType = document.getElementById('task-type')?.value;
+        const assignedTo = document.getElementById('task-assigned-to')?.value;
+        const priority = document.getElementById('task-priority')?.value;
+        const dueDate = document.getElementById('task-due-date')?.value;
+        const status = document.getElementById('task-status')?.value || 'pending';
+        const description = document.getElementById('task-description')?.value;
+        const notes = document.getElementById('task-notes')?.value;
+
         const taskData = {
             id: this.generateTaskId(),
-            type: document.getElementById('task-type').value,
-            roomId: document.getElementById('task-room').value,
-            priority: document.getElementById('task-priority').value,
-            assignee: document.getElementById('task-assignee').value,
-            description: document.getElementById('task-description').value,
-            dueDate: document.getElementById('task-due-date').value,
-            status: document.getElementById('task-status').value,
+            roomNumber: roomNumber,
+            taskType: taskType,
+            assignedTo: assignedTo,
+            priority: priority,
+            description: description,
+            notes: notes,
+            dueDate: dueDate,
+            status: status,
             createdAt: new Date().toISOString()
         };
 
@@ -192,10 +204,95 @@ class HousekeepingManager {
             await window.dbManager.update('tasks', task);
             this.renderCleaningSchedule();
             this.renderMaintenanceTasks();
-            showNotification(`Tugas ${status === 'completed' ? 'selesai' : 'diupdate'}!`, 'success');
+            this.renderHousekeepingList();
+            showNotification(`Tugas ${status === 'completed' ? 'selesai' : 'diupdate'}!', 'success');
         } catch (error) {
             console.error('Error updating task:', error);
             showNotification('Error mengupdate tugas!', 'error');
+        }
+    }
+
+    renderHousekeepingList() {
+        const tbody = document.getElementById('housekeeping-list');
+        if (!tbody) return;
+
+        if (this.tasks.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="8" class="text-center">Tidak ada tugas housekeeping</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = this.tasks.map(task => {
+            let statusBadge = '';
+            let priorityBadge = '';
+            
+            switch(task.status) {
+                case 'pending':
+                    statusBadge = '<span class="badge badge-warning">Pending</span>';
+                    break;
+                case 'in-progress':
+                    statusBadge = '<span class="badge badge-info">Dikerjakan</span>';
+                    break;
+                case 'completed':
+                    statusBadge = '<span class="badge badge-success">Selesai</span>';
+                    break;
+                default:
+                    statusBadge = `<span class="badge badge-secondary">${task.status}</span>`;
+            }
+
+            switch(task.priority) {
+                case 'urgent':
+                    priorityBadge = '<span class="badge badge-danger">Mendesak</span>';
+                    break;
+                case 'high':
+                    priorityBadge = '<span class="badge badge-warning">Tinggi</span>';
+                    break;
+                case 'medium':
+                    priorityBadge = '<span class="badge badge-info">Sedang</span>';
+                    break;
+                case 'low':
+                    priorityBadge = '<span class="badge badge-secondary">Rendah</span>';
+                    break;
+                default:
+                    priorityBadge = `<span class="badge">${task.priority}</span>`;
+            }
+
+            const dueDate = task.dueDate ? new Date(task.dueDate).toLocaleString('id-ID') : '-';
+
+            return `
+                <tr>
+                    <td>${task.id}</td>
+                    <td>${task.roomNumber || '-'}</td>
+                    <td>${task.taskType || task.type || '-'}</td>
+                    <td>${task.assignedTo || task.assignee || '-'}</td>
+                    <td>${priorityBadge}</td>
+                    <td>${dueDate}</td>
+                    <td>${statusBadge}</td>
+                    <td>
+                        <button class="btn btn-sm btn-success" onclick="window.housekeepingManager.updateTaskStatus('${task.id}', 'completed')">
+                            <i class="fas fa-check"></i>
+                        </button>
+                        <button class="btn btn-sm btn-danger" onclick="window.housekeepingManager.deleteTask('${task.id}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    async deleteTask(taskId) {
+        if (!confirm('Yakin ingin menghapus tugas ini?')) return;
+
+        try {
+            await window.dbManager.delete('tasks', taskId);
+            this.tasks = this.tasks.filter(t => t.id !== taskId);
+            this.renderCleaningSchedule();
+            this.renderMaintenanceTasks();
+            this.renderHousekeepingList();
+            showNotification('Tugas berhasil dihapus!', 'success');
+        } catch (error) {
+            console.error('Error deleting task:', error);
+            showNotification('Error menghapus tugas!', 'error');
         }
     }
 
