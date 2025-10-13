@@ -292,10 +292,11 @@ body {
 }
 
 .content-wrapper {
-    padding: var(--space-6);
+    padding: var(--space-8) var(--space-8) var(--space-6) var(--space-8);
     flex: 1;
     overflow-y: auto;
     max-height: calc(100vh - 80px);
+    margin-left: var(--space-4);
 }
 
 /* Cards */
@@ -874,6 +875,7 @@ table tr:last-child td {
     
     .content-wrapper {
         padding: var(--space-3);
+        margin-left: 0;
     }
     
     .module-header {
@@ -1943,7 +1945,7 @@ img {
     gap: var(--space-6);
     max-width: 1400px;
     margin: 0 auto;
-    padding: 0 var(--space-4);
+    padding: 0 var(--space-6);
 }
 
 .data-grid {

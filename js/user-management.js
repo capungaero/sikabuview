@@ -10,17 +10,17 @@ class UserManager {
         this.userLevels = {
             'admin': {
                 name: 'Administrator',
-                permissions: ['dashboard', 'booking', 'payment', 'rooms', 'guests', 'finance', 'housekeeping', 'reports', 'data', 'users'],
+                permissions: ['dashboard', 'booking', 'payment', 'rooms', 'guests', 'finance', 'housekeeping', 'reports', 'data', 'users', 'calendar'],
                 color: '#dc2626'
             },
             'staff': {
                 name: 'Staff Operasional',
-                permissions: ['dashboard', 'booking', 'payment', 'rooms', 'guests', 'housekeeping'],
+                permissions: ['dashboard', 'booking', 'payment', 'rooms', 'guests', 'housekeeping', 'calendar'],
                 color: '#2563eb'
             },
             'report': {
                 name: 'Staff Laporan',
-                permissions: ['reports'],
+                permissions: ['reports', 'calendar'],
                 color: '#059669'
             }
         };
