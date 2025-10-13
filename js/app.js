@@ -71,6 +71,12 @@ class SikaBuApp {
     }
     
     showTab(tabName) {
+        // Check user permissions
+        if (window.userManager && !window.userManager.hasPermission(tabName)) {
+            window.showToast('Anda tidak memiliki akses ke menu ini', 'error');
+            return;
+        }
+
         // Hide all tab contents
         document.querySelectorAll('.tab-content').forEach(tab => {
             tab.classList.remove('active');

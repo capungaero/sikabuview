@@ -1288,6 +1288,42 @@
                     </div>
 
                     <div class="data-card">
+                        <div class="data-icon users">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="data-content">
+                            <h3>User Management</h3>
+                            <p>Kelola pengguna dan level akses sistem</p>
+                            <div class="data-actions">
+                                <button class="btn btn-primary" onclick="showUserManagement()">
+                                    <i class="fas fa-users-cog"></i> Kelola User
+                                </button>
+                                <button class="btn btn-success" onclick="showAddUserModal()">
+                                    <i class="fas fa-user-plus"></i> Tambah User
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="data-card">
+                        <div class="data-icon settings">
+                            <i class="fas fa-cog"></i>
+                        </div>
+                        <div class="data-content">
+                            <h3>Pengaturan Sistem</h3>
+                            <p>Konfigurasi logo dan pengaturan aplikasi</p>
+                            <div class="data-actions">
+                                <button class="btn btn-info" onclick="showLogoSettings()">
+                                    <i class="fas fa-image"></i> Upload Logo
+                                </button>
+                                <button class="btn btn-secondary" onclick="showSystemSettings()">
+                                    <i class="fas fa-cogs"></i> Pengaturan
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="data-card">
                         <div class="data-icon status">
                             <i class="fas fa-server"></i>
                         </div>
@@ -1339,6 +1375,7 @@
 
     <!-- Scripts -->
     <script src="js/database.js"></script>
+    <script src="js/user-management.js"></script>
     <script src="js/booking.js"></script>
     <script src="js/payment.js"></script>
     <script src="js/finance.js"></script>
