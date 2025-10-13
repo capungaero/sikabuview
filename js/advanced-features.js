@@ -509,34 +509,33 @@ class CalendarManager {
     }
 
     renderCalendar() {
-        const calendarGrid = document.getElementById('calendar-grid');
-        const calendarTitle = document.getElementById('calendar-title');
-        
-        if (!calendarGrid || !calendarTitle) return;
+        // Update month-year display
+        const monthYearDisplay = document.getElementById('calendar-month-year');
+        if (monthYearDisplay) {
+            const year = this.currentDate.getFullYear();
+            const month = this.currentDate.getMonth();
+            monthYearDisplay.textContent = new Intl.DateTimeFormat('id-ID', { 
+                month: 'long', 
+                year: 'numeric' 
+            }).format(this.currentDate);
+        }
+
+        // Render calendar grid
+        const calendarDays = document.getElementById('calendar-days');
+        if (!calendarDays) return;
 
         const year = this.currentDate.getFullYear();
         const month = this.currentDate.getMonth();
         
-        calendarTitle.textContent = new Intl.DateTimeFormat('id-ID', { 
-            month: 'long', 
-            year: 'numeric' 
-        }).format(this.currentDate);
-
         // Generate calendar days
         const firstDay = new Date(year, month, 1);
         const lastDay = new Date(year, month + 1, 0);
         const startDate = new Date(firstDay);
         startDate.setDate(startDate.getDate() - firstDay.getDay());
 
-        let calendarHTML = '<div class="calendar-header-row">';
-        const dayNames = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
-        dayNames.forEach(day => {
-            calendarHTML += `<div class="calendar-day-header">${day}</div>`;
-        });
-        calendarHTML += '</div>';
+        let calendarHTML = '';
 
         for (let week = 0; week < 6; week++) {
-            calendarHTML += '<div class="calendar-week">';
             for (let day = 0; day < 7; day++) {
                 const currentDate = new Date(startDate);
                 currentDate.setDate(startDate.getDate() + (week * 7) + day);
@@ -546,25 +545,37 @@ class CalendarManager {
                 
                 const occupancyData = this.getOccupancyForDate(currentDate);
                 
+                let statusClass = '';
+                let statusColor = '#4CAF50'; // Available
+                
+                if (occupancyData.percentage >= 100) {
+                    statusClass = 'full';
+                    statusColor = '#F44336'; // Full
+                } else if (occupancyData.percentage >= 75) {
+                    statusClass = 'high';
+                    statusColor = '#FF9800'; // High occupancy
+                } else if (occupancyData.percentage >= 50) {
+                    statusClass = 'medium';
+                    statusColor = '#2196F3'; // Medium
+                }
+                
                 calendarHTML += `
-                    <div class="calendar-day ${isCurrentMonth ? 'current-month' : 'other-month'} ${isToday ? 'today' : ''}" 
+                    <div class="calendar-day ${isCurrentMonth ? '' : 'other-month'} ${isToday ? 'today' : ''} ${statusClass}" 
                          data-date="${currentDate.toISOString().split('T')[0]}"
-                         onclick="calendarManager.showDayDetails('${currentDate.toISOString().split('T')[0]}')">
-                        <div class="day-number">${currentDate.getDate()}</div>
-                        <div class="day-occupancy">
-                            <div class="occupancy-bar">
-                                <div class="occupancy-fill" style="width: ${occupancyData.percentage}%"></div>
-                            </div>
-                            <div class="occupancy-text">${occupancyData.occupied}/${occupancyData.total}</div>
+                         onclick="window.calendarManager?.showDayDetails('${currentDate.toISOString().split('T')[0]}')"
+                         style="background: ${isCurrentMonth ? 'white' : '#f5f5f5'}; border-left: 3px solid ${statusColor};">
+                        <div class="calendar-day-number">${currentDate.getDate()}</div>
+                        <div class="calendar-bookings">
+                            <small style="color: ${statusColor}; font-weight: 600;">
+                                ${occupancyData.occupied}/${occupancyData.total} kamar
+                            </small>
                         </div>
                     </div>
                 `;
             }
-            calendarHTML += '</div>';
         }
 
-        calendarGrid.innerHTML = calendarHTML;
-        this.renderTodayAvailability();
+        calendarDays.innerHTML = calendarHTML;
     }
 
     getOccupancyForDate(date) {
@@ -633,6 +644,58 @@ class CalendarManager {
             }
             return false;
         });
+    }
+
+    showDayDetails(dateStr) {
+        const date = new Date(dateStr);
+        const occupancyData = this.getOccupancyForDate(date);
+        
+        // Get bookings for this date
+        const dayBookings = this.bookings.filter(booking => {
+            const checkIn = new Date(booking.checkInDate);
+            const checkOut = new Date(booking.checkOutDate);
+            return date >= checkIn && date < checkOut && 
+                   (booking.status === 'confirmed' || booking.status === 'checked-in');
+        });
+
+        let detailsHTML = `
+            <div class="modal-overlay" onclick="this.remove()">
+                <div class="modal-content" onclick="event.stopPropagation()">
+                    <h3>${date.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</h3>
+                    <p><strong>Okupansi:</strong> ${occupancyData.occupied}/${occupancyData.total} kamar (${occupancyData.percentage.toFixed(0)}%)</p>
+                    <hr>
+                    <h4>Booking untuk tanggal ini:</h4>
+        `;
+
+        if (dayBookings.length === 0) {
+            detailsHTML += '<p>Tidak ada booking</p>';
+        } else {
+            detailsHTML += '<ul style="list-style: none; padding: 0;">';
+            dayBookings.forEach(booking => {
+                const statusBadge = booking.status === 'checked-in' ? 
+                    '<span class="badge badge-success">Checked-in</span>' : 
+                    '<span class="badge badge-info">Confirmed</span>';
+                detailsHTML += `
+                    <li style="padding: 10px; border-bottom: 1px solid #eee;">
+                        <strong>${booking.guestName}</strong> - Kamar ${booking.roomNumber || 'N/A'} ${statusBadge}<br>
+                        <small>Check-in: ${new Date(booking.checkInDate).toLocaleDateString('id-ID')} | 
+                        Check-out: ${new Date(booking.checkOutDate).toLocaleDateString('id-ID')}</small>
+                    </li>
+                `;
+            });
+            detailsHTML += '</ul>';
+        }
+
+        detailsHTML += `
+                    <button class="btn btn-primary" onclick="this.closest('.modal-overlay').remove()" style="margin-top: 15px;">Tutup</button>
+                </div>
+            </div>
+        `;
+
+        // Add modal to page
+        const modalDiv = document.createElement('div');
+        modalDiv.innerHTML = detailsHTML;
+        document.body.appendChild(modalDiv.firstElementChild);
     }
 }
 
@@ -1178,6 +1241,25 @@ function hideGuestForm() {
 function searchGuests() {
     if (window.guestsManager) {
         window.guestsManager.searchGuests();
+    }
+}
+
+// Calendar navigation functions
+function previousMonth() {
+    if (window.calendarManager) {
+        window.calendarManager.navigateCalendar(-1);
+    }
+}
+
+function nextMonth() {
+    if (window.calendarManager) {
+        window.calendarManager.navigateCalendar(1);
+    }
+}
+
+function refreshCalendar() {
+    if (window.calendarManager) {
+        window.calendarManager.loadData();
     }
 }
 
