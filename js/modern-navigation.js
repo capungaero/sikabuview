@@ -47,20 +47,16 @@ function initMobileMenu() {
     });
 }
 
-// Enhanced modal functions
-function showModal(title, content) {
-    
-    // Handle window resize
-    let resizeTimer;
-    window.addEventListener('resize', function() {
-        clearTimeout(resizeTimer);
-        resizeTimer = setTimeout(function() {
-            if (window.innerWidth > 1024) {
-                closeMobileMenu();
-            }
-        }, 250);
-    });
-}
+// Handle window resize for mobile menu
+let resizeTimer;
+window.addEventListener('resize', function() {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function() {
+        if (window.innerWidth > 1024) {
+            closeMobileMenu();
+        }
+    }, 250);
+});
 
 function initModernNavigation() {
     // Handle tab switching
@@ -68,19 +64,17 @@ function initModernNavigation() {
     const tabContents = document.querySelectorAll('.tab-content');
     const pageTitle = document.getElementById('current-page-title');
     
-    // Map tab names to display titles
+    // Tab titles mapping
     const tabTitles = {
         'dashboard': 'Dashboard Overview',
         'booking': 'Manajemen Booking',
-        'checkin': 'Check-in & Check-out',
         'payment': 'Manajemen Pembayaran',
-        'housekeeping': 'Manajemen Housekeeping',
-        'rooms': 'Konfigurasi Kamar & Harga',
-        'guests': 'Database Tamu',
-        'calendar': 'Kalender Booking',
+        'rooms': 'Manajemen Kamar',
+        'guests': 'Manajemen Tamu',
         'finance': 'Manajemen Keuangan',
-        'reports': 'Laporan & Analisis',
-        'data': 'Export & Import Data'
+        'housekeeping': 'Housekeeping',
+        'reports': 'Laporan',
+        'data': 'Data Management'
     };
     
     navLinks.forEach(link => {
@@ -89,41 +83,41 @@ function initModernNavigation() {
             
             const targetTab = this.getAttribute('data-tab');
             
-            // Use global showTab function if available (from app.js)
-            if (window.sikabuApp && typeof window.sikabuApp.showTab === 'function') {
-                window.sikabuApp.showTab(targetTab);
-            } else {
-                // Fallback: direct tab switching
-                // Remove active class from all links
-                navLinks.forEach(l => l.classList.remove('active'));
-                
-                // Add active class to clicked link
-                this.classList.add('active');
-                
-                // Hide all tab contents
-                tabContents.forEach(content => {
-                    content.classList.remove('active');
-                });
-                
-                // Show target tab content
-                const targetContent = document.getElementById(targetTab);
-                if (targetContent) {
-                    targetContent.classList.add('active');
-                }
-                
-                // Update page title
-                if (pageTitle && tabTitles[targetTab]) {
-                    pageTitle.textContent = tabTitles[targetTab];
-                }
-                
-                // Reload calendar data when calendar tab is opened
-                if (targetTab === 'calendar' && window.calendarManager) {
-                    window.calendarManager.loadData().then(() => {
-                        window.calendarManager.renderCalendar();
-                    });
-                }
+            // Remove active class from all nav links
+            navLinks.forEach(navLink => {
+                navLink.classList.remove('active');
+            });
+            
+            // Add active class to clicked nav link
+            this.classList.add('active');
+            
+            // Hide all tab contents
+            tabContents.forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show target tab
+            const targetContent = document.getElementById(targetTab);
+            if (targetContent) {
+                targetContent.classList.add('active');
             }
             
+            // Update page title
+            if (pageTitle && tabTitles[targetTab]) {
+                pageTitle.textContent = tabTitles[targetTab];
+            }
+            
+            // Call window resize to adjust layouts
+            window.dispatchEvent(new Event('resize'));
+            
+            // Initialize specific features based on tab
+            if (window.sikabuApp && typeof window.sikabuApp.showTab === 'function') {
+                window.sikabuApp.showTab(targetTab);
+            }
+        });
+    });
+}
+
 // Enhanced modal functions
 function showModal(title, content) {
     const modal = document.getElementById('modal');
@@ -150,94 +144,114 @@ function closeModal() {
     }
 }
 
-// Close modal with Escape key
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-        closeModal();
+// Loading overlay functions
+function showLoading(message = 'Loading...') {
+    let loadingOverlay = document.getElementById('loading-overlay');
+    
+    if (!loadingOverlay) {
+        loadingOverlay = document.createElement('div');
+        loadingOverlay.id = 'loading-overlay';
+        loadingOverlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            color: white;
+            font-size: 1.2rem;
+        `;
+        document.body.appendChild(loadingOverlay);
     }
-});
+    
+    loadingOverlay.innerHTML = `
+        <div style="text-align: center;">
+            <div class="spinner" style="
+                border: 4px solid #f3f3f3;
+                border-top: 4px solid #3498db;
+                border-radius: 50%;
+                width: 40px;
+                height: 40px;
+                animation: spin 2s linear infinite;
+                margin: 0 auto 1rem;
+            "></div>
+            <div>${message}</div>
+        </div>
+    `;
+    
+    // Add spinner animation
+    if (!document.querySelector('#spinner-styles')) {
+        const style = document.createElement('style');
+        style.id = 'spinner-styles';
+        style.textContent = `
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    loadingOverlay.style.display = 'flex';
+}
 
-// Close modal when clicking overlay
-document.addEventListener('click', function(e) {
-    const modal = document.getElementById('modal-overlay');
-    if (modal && e.target === modal) {
-        closeModal();
+function hideLoading() {
+    const loadingOverlay = document.getElementById('loading-overlay');
+    if (loadingOverlay) {
+        loadingOverlay.style.display = 'none';
     }
-});
+}
 
 // Enhanced button interactions
 document.addEventListener('DOMContentLoaded', function() {
     // Add ripple effect to buttons
-    const buttons = document.querySelectorAll('.btn');
-    
-    buttons.forEach(button => {
-        button.addEventListener('click', function(e) {
+    document.addEventListener('click', function(e) {
+        if (e.target.matches('.btn, .mobile-menu-toggle, .nav-link')) {
             const ripple = document.createElement('span');
-            const rect = this.getBoundingClientRect();
+            const rect = e.target.getBoundingClientRect();
             const size = Math.max(rect.width, rect.height);
             const x = e.clientX - rect.left - size / 2;
             const y = e.clientY - rect.top - size / 2;
             
             ripple.style.cssText = `
                 position: absolute;
+                border-radius: 50%;
+                background: rgba(255, 255, 255, 0.3);
                 width: ${size}px;
                 height: ${size}px;
                 left: ${x}px;
                 top: ${y}px;
-                background: rgba(255, 255, 255, 0.3);
-                border-radius: 50%;
-                transform: scale(0);
-                animation: ripple 0.6s linear;
+                animation: ripple 0.6s ease-out;
                 pointer-events: none;
             `;
             
-            this.appendChild(ripple);
+            e.target.style.position = 'relative';
+            e.target.style.overflow = 'hidden';
+            e.target.appendChild(ripple);
             
-            setTimeout(() => {
-                ripple.remove();
-            }, 600);
-        });
+            setTimeout(() => ripple.remove(), 600);
+        }
     });
     
-    // Add CSS for ripple animation
-    const style = document.createElement('style');
-    style.textContent = `
-        .btn {
-            position: relative;
-            overflow: hidden;
-        }
-        
-        @keyframes ripple {
-            to {
-                transform: scale(4);
-                opacity: 0;
+    // Add ripple animation CSS
+    if (!document.querySelector('#ripple-styles')) {
+        const style = document.createElement('style');
+        style.id = 'ripple-styles';
+        style.textContent = `
+            @keyframes ripple {
+                to {
+                    transform: scale(4);
+                    opacity: 0;
+                }
             }
-        }
-    `;
-    document.head.appendChild(style);
+        `;
+        document.head.appendChild(style);
+    }
 });
-
-// Loading states untuk form submissions
-function showLoading(element) {
-    if (element) {
-        element.classList.add('loading');
-        element.disabled = true;
-        const originalText = element.textContent;
-        element.textContent = 'Loading...';
-        element.dataset.originalText = originalText;
-    }
-}
-
-function hideLoading(element) {
-    if (element) {
-        element.classList.remove('loading');
-        element.disabled = false;
-        if (element.dataset.originalText) {
-            element.textContent = element.dataset.originalText;
-            delete element.dataset.originalText;
-        }
-    }
-}
 
 // Toast notifications
 function showToast(message, type = 'info') {
