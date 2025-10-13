@@ -205,7 +205,7 @@ class HousekeepingManager {
             this.renderCleaningSchedule();
             this.renderMaintenanceTasks();
             this.renderHousekeepingList();
-            showNotification(`Tugas ${status === 'completed' ? 'selesai' : 'diupdate'}!', 'success');
+            showNotification(`Tugas ${status === 'completed' ? 'selesai' : 'diupdate'}!`, 'success');
         } catch (error) {
             console.error('Error updating task:', error);
             showNotification('Error mengupdate tugas!', 'error');
