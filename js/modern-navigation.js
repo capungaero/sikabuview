@@ -122,7 +122,7 @@ function initModernNavigation() {
 function showModal(title, content) {
     const modal = document.getElementById('modal');
     const modalTitle = document.getElementById('modal-title');
-    const modalBody = document.getElementById('modal-body');
+    const modalBody = modal ? modal.querySelector('.modal-body') : null;
     
     if (modal && modalTitle && modalBody) {
         modalTitle.textContent = title;

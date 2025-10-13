@@ -433,7 +433,7 @@ function showAddUserModal() {
         } else {
             console.error('Form element not found: add-user-form');
         }
-    }, 100);
+    }, 200);
 }
 
 function editUser(userId) {
@@ -545,7 +545,7 @@ function editUser(userId) {
         } else {
             console.error('Form element not found: edit-user-form');
         }
-    }, 100);
+    }, 200);
 }
 
 function deleteUser(userId) {
@@ -653,7 +653,7 @@ function showLogoSettings() {
                 handleLogoUpload(e.target.files[0]);
             }
         });
-    }, 100);
+    }, 200);
 }
 
 function handleLogoUpload(file) {
@@ -836,7 +836,7 @@ function showSystemSettings() {
         } else {
             console.error('Form element not found: system-settings-form');
         }
-    }, 100);
+    }, 200);
 }
 
 // Initialize on load
