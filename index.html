@@ -976,40 +976,66 @@
                 <div class="module-header">
                     <h2><i class="fas fa-calendar-alt"></i> Kalender Ketersediaan</h2>
                     <div class="module-actions">
-                        <button class="btn btn-primary" onclick="refreshCalendar()">
+                        <button class="btn btn-primary" onclick="window.calendar.refresh()">
                             <i class="fas fa-sync-alt"></i> Refresh
                         </button>
                     </div>
                 </div>
 
-                <div class="card">
-                    <div class="card-header">
-                        <div class="calendar-controls">
-                            <button class="btn btn-secondary" onclick="previousMonth()">
-                                <i class="fas fa-chevron-left"></i> Bulan Sebelumnya
+                <div class="modern-calendar">
+                    <!-- Calendar Toolbar -->
+                    <div class="calendar-toolbar">
+                        <div class="calendar-nav">
+                            <button class="calendar-nav-btn" onclick="window.calendar.previousMonth()" title="Bulan Sebelumnya">
+                                <i class="fas fa-chevron-left"></i>
                             </button>
-                            <h3 id="calendar-month-year"></h3>
-                            <button class="btn btn-secondary" onclick="nextMonth()">
-                                Bulan Berikutnya <i class="fas fa-chevron-right"></i>
+                            <button class="calendar-nav-btn" onclick="window.calendar.nextMonth()" title="Bulan Berikutnya">
+                                <i class="fas fa-chevron-right"></i>
                             </button>
                         </div>
+                        
+                        <h3 class="calendar-title" id="calendar-title">
+                            <!-- Month Year will be displayed here -->
+                        </h3>
+                        
+                        <button class="calendar-today-btn" onclick="window.calendar.goToToday()">
+                            Hari Ini
+                        </button>
                     </div>
-                    <div class="card-body">
-                        <div id="calendar-container">
-                            <div class="calendar-grid">
-                                <div class="calendar-days-header">
-                                    <div class="calendar-day-name">Minggu</div>
-                                    <div class="calendar-day-name">Senin</div>
-                                    <div class="calendar-day-name">Selasa</div>
-                                    <div class="calendar-day-name">Rabu</div>
-                                    <div class="calendar-day-name">Kamis</div>
-                                    <div class="calendar-day-name">Jumat</div>
-                                    <div class="calendar-day-name">Sabtu</div>
-                                </div>
-                                <div id="calendar-days" class="calendar-days">
-                                    <!-- Calendar days will be generated here -->
-                                </div>
-                            </div>
+
+                    <!-- Calendar Header -->
+                    <div class="calendar-header">
+                        <div class="calendar-header-cell">Min</div>
+                        <div class="calendar-header-cell">Sen</div>
+                        <div class="calendar-header-cell">Sel</div>
+                        <div class="calendar-header-cell">Rab</div>
+                        <div class="calendar-header-cell">Kam</div>
+                        <div class="calendar-header-cell">Jum</div>
+                        <div class="calendar-header-cell">Sab</div>
+                    </div>
+
+                    <!-- Calendar Body -->
+                    <div class="calendar-body" id="calendar-body">
+                        <!-- Calendar cells will be generated here -->
+                    </div>
+
+                    <!-- Calendar Legend -->
+                    <div class="calendar-legend">
+                        <div class="legend-item">
+                            <div class="legend-indicator checkin"></div>
+                            <span>Check-in</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-indicator checkout"></div>
+                            <span>Check-out</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-indicator staying"></div>
+                            <span>Menginap</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-indicator maintenance"></div>
+                            <span>Maintenance</span>
                         </div>
                     </div>
                 </div>
@@ -1385,6 +1411,7 @@
     <script src="js/reports-housekeeping.js"></script>
     <script src="js/print.js"></script>
     <script src="js/modern-navigation.js"></script>
+    <script src="js/modern-calendar.js"></script>
     <script src="js/app.js"></script>
 </body>
 </html>

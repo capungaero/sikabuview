@@ -118,6 +118,11 @@ class BookingManager {
                 await this.loadBookings();
                 this.updateDashboardStats();
                 
+                // Dispatch event for calendar sync
+                document.dispatchEvent(new CustomEvent('bookingCreated', {
+                    detail: { bookingId, bookingData }
+                }));
+                
                 // Reload calendar if available
                 if (window.calendarManager) {
                     await window.calendarManager.loadData();
@@ -321,6 +326,11 @@ class BookingManager {
                 await this.loadBookings();
                 this.updateDashboardStats();
                 this.closeModal();
+                
+                // Dispatch event for calendar sync
+                document.dispatchEvent(new CustomEvent('bookingDeleted', {
+                    detail: { bookingId: id }
+                }));
             } catch (error) {
                 this.showError('Error menghapus booking: ' + error.message);
             }
@@ -335,13 +345,12 @@ class BookingManager {
             await this.loadBookings();
             this.updateDashboardStats();
             
-            // Reload calendar if available
-            if (window.calendarManager) {
-                await window.calendarManager.loadData();
-                window.calendarManager.renderCalendar();
-            }
-            
             this.showSuccess(`Status booking berhasil diubah ke ${this.getStatusLabel(status)}`);
+            
+            // Dispatch event for calendar sync
+            document.dispatchEvent(new CustomEvent('bookingUpdated', {
+                detail: { bookingId: id, status }
+            }));
         } catch (error) {
             this.showError('Error mengubah status: ' + error.message);
         }
