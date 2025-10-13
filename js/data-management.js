@@ -402,8 +402,11 @@ function showAddUserModal() {
 
     window.showModal('Tambah User Baru', addUserForm);
 
-    // Handle form submission
-    document.getElementById('add-user-form').addEventListener('submit', (e) => {
+    // Handle form submission with timeout to ensure DOM is ready
+    setTimeout(() => {
+        const form = document.getElementById('add-user-form');
+        if (form) {
+            form.addEventListener('submit', (e) => {
         e.preventDefault();
         
         const userData = {
@@ -426,7 +429,11 @@ function showAddUserModal() {
         } catch (error) {
             showNotification(error.message, 'error');
         }
-    });
+            });
+        } else {
+            console.error('Form element not found: add-user-form');
+        }
+    }, 100);
 }
 
 function editUser(userId) {
@@ -494,8 +501,11 @@ function editUser(userId) {
 
     window.showModal('Edit User', editUserForm);
 
-    // Handle form submission
-    document.getElementById('edit-user-form').addEventListener('submit', (e) => {
+    // Handle form submission with timeout to ensure DOM is ready
+    setTimeout(() => {
+        const form = document.getElementById('edit-user-form');
+        if (form) {
+            form.addEventListener('submit', (e) => {
         e.preventDefault();
         
         const userData = {
@@ -531,7 +541,11 @@ function editUser(userId) {
         } catch (error) {
             showNotification(error.message, 'error');
         }
-    });
+            });
+        } else {
+            console.error('Form element not found: edit-user-form');
+        }
+    }, 100);
 }
 
 function deleteUser(userId) {
@@ -603,11 +617,17 @@ function showLogoSettings() {
 
     window.showModal('Pengaturan Logo', logoSettingsHtml);
 
-    // Setup file upload
-    const uploadArea = document.getElementById('logo-upload-area');
-    const fileInput = document.getElementById('logo-file-input');
+    // Setup file upload with timeout to ensure DOM is ready
+    setTimeout(() => {
+        const uploadArea = document.getElementById('logo-upload-area');
+        const fileInput = document.getElementById('logo-file-input');
 
-    uploadArea.addEventListener('click', () => fileInput.click());
+        if (!uploadArea || !fileInput) {
+            console.error('Logo upload elements not found');
+            return;
+        }
+
+        uploadArea.addEventListener('click', () => fileInput.click());
 
     // Handle drag and drop
     uploadArea.addEventListener('dragover', (e) => {
@@ -628,11 +648,12 @@ function showLogoSettings() {
         }
     });
 
-    fileInput.addEventListener('change', (e) => {
-        if (e.target.files.length > 0) {
-            handleLogoUpload(e.target.files[0]);
-        }
-    });
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleLogoUpload(e.target.files[0]);
+            }
+        });
+    }, 100);
 }
 
 function handleLogoUpload(file) {
@@ -789,8 +810,11 @@ function showSystemSettings() {
 
     window.showModal('Pengaturan Sistem', systemSettingsHtml);
 
-    // Handle form submission
-    document.getElementById('system-settings-form').addEventListener('submit', (e) => {
+    // Handle form submission with timeout to ensure DOM is ready
+    setTimeout(() => {
+        const form = document.getElementById('system-settings-form');
+        if (form) {
+            form.addEventListener('submit', (e) => {
         e.preventDefault();
         
         const newSettings = {
@@ -808,7 +832,11 @@ function showSystemSettings() {
         localStorage.setItem('sikabu_settings', JSON.stringify(newSettings));
         showNotification('Pengaturan berhasil disimpan', 'success');
         window.closeModal();
-    });
+            });
+        } else {
+            console.error('Form element not found: system-settings-form');
+        }
+    }, 100);
 }
 
 // Initialize on load
