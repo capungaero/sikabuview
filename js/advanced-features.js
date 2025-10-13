@@ -557,8 +557,8 @@ class CheckInOutManager {
     }
 
     setupEventListeners() {
-        const checkinForm = document.getElementById('checkin-form');
-        const checkoutForm = document.getElementById('checkout-form');
+        const checkinForm = document.getElementById('add-checkin-form');
+        const checkoutForm = document.getElementById('add-checkout-form');
         
         if (checkinForm) {
             checkinForm.addEventListener('submit', (e) => this.handleCheckIn(e));
@@ -566,6 +566,17 @@ class CheckInOutManager {
         
         if (checkoutForm) {
             checkoutForm.addEventListener('submit', (e) => this.handleCheckOut(e));
+        }
+
+        // Auto-load booking data when booking ID is entered
+        const checkinBookingId = document.getElementById('checkin-booking-id');
+        if (checkinBookingId) {
+            checkinBookingId.addEventListener('blur', (e) => this.loadBookingForCheckin(e.target.value));
+        }
+
+        const checkoutBookingId = document.getElementById('checkout-booking-id');
+        if (checkoutBookingId) {
+            checkoutBookingId.addEventListener('blur', (e) => this.loadBookingForCheckout(e.target.value));
         }
     }
 
@@ -590,6 +601,39 @@ class CheckInOutManager {
             console.error('Error loading check-in/out data:', error);
             this.bookings = [];
             this.rooms = [];
+        }
+    }
+
+    async loadBookingForCheckin(bookingId) {
+        if (!bookingId) return;
+        
+        const booking = this.bookings.find(b => b.id === bookingId);
+        if (booking) {
+            document.getElementById('checkin-guest-name').value = booking.guestName || '';
+            
+            // Set default time to now
+            const now = new Date();
+            document.getElementById('checkin-actual-time').value = 
+                now.toISOString().slice(0, 16);
+        } else {
+            showNotification('Booking ID tidak ditemukan!', 'warning');
+        }
+    }
+
+    async loadBookingForCheckout(bookingId) {
+        if (!bookingId) return;
+        
+        const booking = this.bookings.find(b => b.id === bookingId && b.status === 'checkedin');
+        if (booking) {
+            document.getElementById('checkout-guest-name').value = booking.guestName || '';
+            document.getElementById('checkout-room-number').value = booking.roomNumber || '';
+            
+            // Set default time to now
+            const now = new Date();
+            document.getElementById('checkout-actual-time').value = 
+                now.toISOString().slice(0, 16);
+        } else {
+            showNotification('Booking tidak ditemukan atau belum check-in!', 'warning');
         }
     }
 
@@ -622,8 +666,9 @@ class CheckInOutManager {
 
     async handleCheckIn(e) {
         e.preventDefault();
-        const bookingId = document.getElementById('checkin-booking').value;
-        const checkinTime = document.getElementById('checkin-time').value;
+        const bookingId = document.getElementById('checkin-booking-id').value;
+        const roomNumber = document.getElementById('checkin-room-number').value;
+        const checkinTime = document.getElementById('checkin-actual-time').value;
         const notes = document.getElementById('checkin-notes').value;
 
         try {
@@ -633,32 +678,54 @@ class CheckInOutManager {
                 return;
             }
 
-            booking.status = 'checked-in';
-            booking.actualCheckInTime = checkinTime;
+            // Validate booking status
+            if (booking.status === 'checkedin') {
+                showNotification('Booking ini sudah check-in!', 'warning');
+                return;
+            }
+
+            if (booking.status === 'cancelled') {
+                showNotification('Booking ini sudah dibatalkan!', 'error');
+                return;
+            }
+
+            // Update booking data
+            booking.status = 'checkedin';
+            booking.roomNumber = roomNumber;
+            booking.actualCheckinTime = checkinTime;
             booking.checkinNotes = notes;
+            booking.updatedAt = new Date().toISOString();
 
             await window.dbManager.update('bookings', booking);
             
-            // Update room status
-            const room = this.rooms.find(r => r.id === booking.roomId);
-            if (room) {
-                room.status = 'occupied';
-                await window.dbManager.update('rooms', room);
+            // Update room status if room number provided
+            if (roomNumber) {
+                const room = this.rooms.find(r => r.number === roomNumber);
+                if (room) {
+                    room.status = 'terisi';
+                    room.currentBookingId = bookingId;
+                    await window.dbManager.update('rooms', room);
+                }
             }
 
-            this.hideCheckinForm();
-            this.loadData();
-            showNotification('Check-in berhasil!', 'success');
+            // Hide form and reload data
+            hideCheckinForm();
+            await this.loadData();
+            
+            // Clear form
+            document.getElementById('add-checkin-form').reset();
+            
+            showNotification('Check-in berhasil! Tamu: ' + booking.guestName, 'success');
         } catch (error) {
             console.error('Error processing check-in:', error);
-            showNotification('Error saat check-in!', 'error');
+            showNotification('Error saat check-in: ' + error.message, 'error');
         }
     }
 
     async handleCheckOut(e) {
         e.preventDefault();
-        const bookingId = document.getElementById('checkout-room').value;
-        const checkoutTime = document.getElementById('checkout-time').value;
+        const bookingId = document.getElementById('checkout-booking-id').value;
+        const checkoutTime = document.getElementById('checkout-actual-time').value;
         const condition = document.getElementById('checkout-condition').value;
         const notes = document.getElementById('checkout-notes').value;
 
@@ -669,34 +736,159 @@ class CheckInOutManager {
                 return;
             }
 
-            booking.status = 'checked-out';
-            booking.actualCheckOutTime = checkoutTime;
+            // Validate booking status
+            if (booking.status !== 'checkedin') {
+                showNotification('Booking ini belum check-in!', 'warning');
+                return;
+            }
+
+            // Update booking data
+            booking.status = 'checkedout';
+            booking.actualCheckoutTime = checkoutTime;
             booking.checkoutNotes = notes;
             booking.roomCondition = condition;
+            booking.updatedAt = new Date().toISOString();
 
             await window.dbManager.update('bookings', booking);
             
-            // Update room status based on condition
-            const room = this.rooms.find(r => r.id === booking.roomId);
-            if (room) {
-                room.status = condition === 'good' ? 'available' : 
-                             condition === 'need-cleaning' ? 'cleaning' : 'maintenance';
-                await window.dbManager.update('rooms', room);
+            // Update room status
+            if (booking.roomNumber) {
+                const room = this.rooms.find(r => r.number === booking.roomNumber);
+                if (room) {
+                    // Set room status based on condition
+                    if (condition === 'baik') {
+                        room.status = 'tersedia';
+                    } else if (condition === 'perlu-cleaning') {
+                        room.status = 'terisi'; // Will be cleaned
+                        // Create housekeeping task
+                        await this.createCleaningTask(room.number, 'Cleaning setelah check-out');
+                    } else if (condition === 'perlu-perbaikan') {
+                        room.status = 'maintenance';
+                        // Create maintenance task
+                        await this.createCleaningTask(room.number, 'Perbaikan diperlukan');
+                    }
+                    room.currentBookingId = null;
+                    await window.dbManager.update('rooms', room);
+                }
             }
 
-            this.hideCheckoutForm();
-            this.loadData();
-            showNotification('Check-out berhasil!', 'success');
+            // Hide form and reload data
+            hideCheckoutForm();
+            await this.loadData();
+            
+            // Clear form
+            document.getElementById('add-checkout-form').reset();
+            
+            showNotification('Check-out berhasil! Tamu: ' + booking.guestName, 'success');
         } catch (error) {
             console.error('Error processing check-out:', error);
-            showNotification('Error saat check-out!', 'error');
+            showNotification('Error saat check-out: ' + error.message, 'error');
+        }
+    }
+
+    async createCleaningTask(roomNumber, description) {
+        try {
+            const task = {
+                id: 'TASK-' + Date.now(),
+                roomNumber: roomNumber,
+                taskType: 'cleaning',
+                description: description,
+                assignedTo: '',
+                priority: 'high',
+                status: 'pending',
+                dueDate: new Date(Date.now() + 3600000).toISOString(), // 1 hour from now
+                createdAt: new Date().toISOString()
+            };
+
+            await window.dbManager.insert('housekeeping', task);
+        } catch (error) {
+            console.warn('Could not create cleaning task:', error);
         }
     }
 
     renderTodayActivities() {
-        this.renderTodayCheckins();
-        this.renderTodayCheckouts();
-        this.renderActiveGuests();
+        this.renderCheckinList();
+    }
+
+    renderCheckinList() {
+        const tbody = document.getElementById('checkin-list');
+        if (!tbody) return;
+
+        const today = new Date().toISOString().split('T')[0];
+        
+        // Get all bookings that are checked in today or checking out today
+        const todayBookings = this.bookings.filter(booking => {
+            const checkinDate = booking.checkinDate ? booking.checkinDate.split('T')[0] : '';
+            const checkoutDate = booking.checkoutDate ? booking.checkoutDate.split('T')[0] : '';
+            return (checkinDate === today || checkoutDate === today || booking.status === 'checkedin');
+        });
+
+        if (todayBookings.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" class="text-center">Tidak ada data check-in/out hari ini</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = todayBookings.map(booking => {
+            const checkinTime = booking.actualCheckinTime ? 
+                new Date(booking.actualCheckinTime).toLocaleString('id-ID') : '-';
+            const checkoutTime = booking.actualCheckoutTime ? 
+                new Date(booking.actualCheckoutTime).toLocaleString('id-ID') : '-';
+            
+            let statusBadge = '';
+            let actions = '';
+            
+            switch(booking.status) {
+                case 'confirmed':
+                    statusBadge = '<span class="badge badge-info">Confirmed</span>';
+                    actions = `<button class="btn btn-sm btn-primary" onclick="window.checkInOutManager.quickCheckin('${booking.id}')">Check-in</button>`;
+                    break;
+                case 'checkedin':
+                    statusBadge = '<span class="badge badge-success">Checked-in</span>';
+                    actions = `<button class="btn btn-sm btn-warning" onclick="window.checkInOutManager.quickCheckout('${booking.id}')">Check-out</button>`;
+                    break;
+                case 'checkedout':
+                    statusBadge = '<span class="badge badge-secondary">Checked-out</span>';
+                    actions = '<span class="text-muted">Selesai</span>';
+                    break;
+                default:
+                    statusBadge = `<span class="badge badge-light">${booking.status}</span>`;
+                    actions = '-';
+            }
+
+            return `
+                <tr>
+                    <td>${booking.id}</td>
+                    <td>${booking.guestName || '-'}</td>
+                    <td>${booking.roomNumber || '-'}</td>
+                    <td>${checkinTime}</td>
+                    <td>${checkoutTime}</td>
+                    <td>${statusBadge}</td>
+                    <td>${actions}</td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    quickCheckin(bookingId) {
+        const booking = this.bookings.find(b => b.id === bookingId);
+        if (booking) {
+            document.getElementById('checkin-booking-id').value = bookingId;
+            document.getElementById('checkin-guest-name').value = booking.guestName || '';
+            document.getElementById('checkin-room-number').value = booking.roomNumber || '';
+            document.getElementById('checkin-actual-time').value = new Date().toISOString().slice(0, 16);
+            showCheckinForm();
+        }
+    }
+
+    quickCheckout(bookingId) {
+        const booking = this.bookings.find(b => b.id === bookingId);
+        if (booking) {
+            document.getElementById('checkout-booking-id').value = bookingId;
+            document.getElementById('checkout-guest-name').value = booking.guestName || '';
+            document.getElementById('checkout-room-number').value = booking.roomNumber || '';
+            document.getElementById('checkout-actual-time').value = new Date().toISOString().slice(0, 16);
+            showCheckoutForm();
+        }
     }
 
     renderTodayCheckins() {

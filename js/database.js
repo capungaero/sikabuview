@@ -320,9 +320,22 @@ class DatabaseManager {
         }
     }
     
+    // Table name mapping (alias support)
+    mapTableName(table) {
+        const mapping = {
+            'housekeeping': 'tasks',
+            'checkins': 'bookings',
+            'checkouts': 'bookings'
+        };
+        return mapping[table] || table;
+    }
+    
     // Generic CRUD operations
     async insert(table, data) {
         try {
+            // Map table name if needed
+            table = this.mapTableName(table);
+            
             // Wait for database to be ready
             if (!this.isReady) {
                 await this.readyPromise;
@@ -346,6 +359,9 @@ class DatabaseManager {
     
     async select(table, conditions = {}, orderBy = null, limit = null) {
         try {
+            // Map table name if needed
+            table = this.mapTableName(table);
+            
             // Wait for database to be ready
             if (!this.isReady) {
                 await this.readyPromise;
@@ -369,6 +385,9 @@ class DatabaseManager {
     
     async update(table, id, data) {
         try {
+            // Map table name if needed
+            table = this.mapTableName(table);
+            
             // Wait for database to be ready
             if (!this.isReady) {
                 await this.readyPromise;
@@ -392,6 +411,9 @@ class DatabaseManager {
     
     async delete(table, id) {
         try {
+            // Map table name if needed
+            table = this.mapTableName(table);
+            
             // Wait for database to be ready
             if (!this.isReady) {
                 await this.readyPromise;
