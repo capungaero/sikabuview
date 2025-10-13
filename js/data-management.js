@@ -347,6 +347,11 @@ function showUserManagement() {
 }
 
 function showAddUserModal() {
+    if (!window.userManager) {
+        showNotification('User manager belum siap. Silakan coba lagi.', 'error');
+        return;
+    }
+    
     if (!window.userManager.hasPermission('users')) {
         showNotification('Anda tidak memiliki akses untuk mengelola user', 'error');
         return;
@@ -413,6 +418,11 @@ function showAddUserModal() {
             window.userManager.createUser(userData);
             window.closeModal();
             showNotification('User berhasil ditambahkan', 'success');
+            // Refresh user list if currently shown
+            const userList = document.querySelector('.user-management-container');
+            if (userList) {
+                showUserManagement();
+            }
         } catch (error) {
             showNotification(error.message, 'error');
         }
@@ -505,6 +515,12 @@ function editUser(userId) {
             window.userManager.updateUser(userId, userData);
             window.closeModal();
             showNotification('User berhasil diupdate', 'success');
+            
+            // Refresh user list if currently shown
+            const userList = document.querySelector('.user-management-container');
+            if (userList) {
+                showUserManagement();
+            }
             
             // If current user updated themselves, refresh permissions
             if (window.userManager.getCurrentUser().id === userId) {
@@ -805,6 +821,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // Apply custom logo on load
         applyCustomLogo();
+
+        // Export functions to global scope for HTML onclick handlers
+        window.showUserManagement = showUserManagement;
+        window.showAddUserModal = showAddUserModal;
+        window.editUser = editUser;
+        window.deleteUser = deleteUser;
+        window.showLogoSettings = showLogoSettings;
+        window.removeCustomLogo = removeCustomLogo;
+        window.showSystemSettings = showSystemSettings;
+        
+        console.log('User management and logo functions exported to global scope');
 
         // Add event listener for clear all data button
         const clearBtn = document.getElementById('clear-all-data-btn');
