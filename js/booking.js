@@ -480,16 +480,55 @@ class BookingManager {
             if (confirmBtn) {
                 confirmBtn.onclick = async (e) => {
                     e.preventDefault();
-                    // Update booking and persist
-                    booking.status = 'paid';
-                    booking.extraCharges = extraCharges;
-                    if (window.dbManager) {
-                        await window.dbManager.update('bookings', booking.id, booking);
-                    }
-                    window.closeModal();
-                    window.showNotification && window.showNotification('Pembayaran berhasil dikonfirmasi', 'success');
-                    if (window.bookingManager) {
-                        window.bookingManager.loadBookings && window.bookingManager.loadBookings();
+
+                    try {
+                        // Calculate totals
+                        const bookingBase = booking.totalPrice || (booking.price * (booking.quantity || 1) || 0);
+                        const extrasTotal = extraCharges.reduce((s, c) => s + (c.amount || 0), 0);
+                        const totalAmount = bookingBase + extrasTotal;
+
+                        // Create payment record
+                        const paymentRecord = {
+                            id: 'PAY-' + Date.now(),
+                            bookingId: booking.id,
+                            guestName: booking.guestName || '',
+                            amount: totalAmount,
+                            paidAmount: totalAmount,
+                            paymentMethod: 'cash',
+                            paymentDate: new Date().toISOString(),
+                            reference: '',
+                            notes: `Dibayar via popup booking. Extras: ${extraCharges.map(x=>x.name).join(', ')}`,
+                            extraCharges: extraCharges,
+                            status: 'paid',
+                            createdAt: new Date().toISOString()
+                        };
+
+                        if (window.dbManager) {
+                            await window.dbManager.insert('payments', paymentRecord);
+                        }
+
+                        // Update booking
+                        booking.status = 'paid';
+                        booking.extraCharges = extraCharges;
+                        booking.paidAt = paymentRecord.paymentDate;
+                        if (window.dbManager) {
+                            await window.dbManager.update('bookings', booking.id, booking);
+                        }
+
+                        // Notify finance module to reload transactions
+                        if (window.financeManager && typeof window.financeManager.loadFinanceData === 'function') {
+                            await window.financeManager.loadFinanceData();
+                            window.financeManager.updateFinanceSummary && window.financeManager.updateFinanceSummary();
+                        }
+
+                        window.closeModal();
+                        window.showNotification && window.showNotification('Pembayaran berhasil dikonfirmasi', 'success');
+                        if (window.bookingManager) {
+                            window.bookingManager.loadBookings && window.bookingManager.loadBookings();
+                        }
+                    } catch (error) {
+                        console.error('Error confirming payment from popup:', error);
+                        window.showNotification && window.showNotification('Gagal menyimpan pembayaran: ' + error.message, 'error');
                     }
                 };
             }
