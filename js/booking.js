@@ -372,10 +372,10 @@ class BookingManager {
         // Render popup pembayaran
         const renderPaymentModal = () => {
             let extraRows = extraCharges.map((item, idx) => `
-                <tr>
+                <tr data-idx="${idx}">
                     <td>${item.name}</td>
                     <td>Rp ${item.amount.toLocaleString('id-ID')}</td>
-                    <td><button type="button" class="btn btn-danger btn-sm" onclick="removeExtraCharge(${idx})">Hapus</button></td>
+                    <td><button type="button" class="btn btn-danger btn-sm remove-extra-btn" data-idx="${idx}">Hapus</button></td>
                 </tr>
             `).join('');
             if (!extraRows) extraRows = '<tr><td colspan="3" style="text-align:center;color:#aaa;">Belum ada tagihan tambahan</td></tr>';
@@ -419,32 +419,29 @@ class BookingManager {
                             <label>Jumlah (Rp)</label>
                             <input type="number" id="extra-item-amount" required min="0" step="1000" placeholder="0">
                         </div>
-                        <button type="submit" class="btn btn-primary">Tambah</button>
+                        <button type="submit" class="btn btn-primary" id="add-extra-btn">Tambah</button>
                     </form>
                     <hr>
-                    <div class="total-row"><b>Total Bayar:</b> <span style="font-size:1.2em;color:#2563eb;">Rp ${total.toLocaleString('id-ID')}</span></div>
+                    <div class="total-row"><b>Total Bayar:</b> <span id="payment-total" style="font-size:1.2em;color:#2563eb;">Rp ${total.toLocaleString('id-ID')}</span></div>
                     <div style="margin-top:18px;display:flex;gap:10px;justify-content:flex-end;">
-                        <button class="btn btn-success" onclick="confirmPayment()">Konfirmasi Bayar</button>
-                        <button class="btn btn-secondary" onclick="window.closeModal()">Tutup</button>
+                        <button class="btn btn-outline" id="view-booking-btn">Lihat</button>
+                        <button class="btn btn-success" id="confirm-payment-btn">Konfirmasi Bayar</button>
+                        <button class="btn btn-secondary" id="close-payment-btn">Tutup</button>
                     </div>
                 </div>
             `;
         };
 
-        // Handler untuk tambah tagihan
-        window.removeExtraCharge = (idx) => {
-            extraCharges.splice(idx, 1);
-            window.showModal('Pembayaran Booking', renderPaymentModal());
-            setupModalHandlers();
-        };
-
+        // Use event listeners (instead of inline onclick) for modal interactions
         function setupModalHandlers() {
             const form = document.getElementById('extra-charge-form');
             if (form) {
                 form.onsubmit = (e) => {
                     e.preventDefault();
-                    const name = document.getElementById('extra-item-name').value.trim();
-                    const amount = parseInt(document.getElementById('extra-item-amount').value, 10) || 0;
+                    const nameEl = document.getElementById('extra-item-name');
+                    const amountEl = document.getElementById('extra-item-amount');
+                    const name = nameEl ? nameEl.value.trim() : '';
+                    const amount = amountEl ? parseInt(amountEl.value, 10) || 0 : 0;
                     if (name && amount > 0) {
                         extraCharges.push({ name, amount });
                         window.showModal('Pembayaran Booking', renderPaymentModal());
@@ -452,25 +449,65 @@ class BookingManager {
                     }
                 };
             }
+
+            // Remove extra charge buttons
+            const removeBtns = document.querySelectorAll('.remove-extra-btn');
+            removeBtns.forEach(btn => {
+                btn.onclick = (e) => {
+                    const idx = parseInt(btn.getAttribute('data-idx'), 10);
+                    if (!Number.isNaN(idx)) {
+                        extraCharges.splice(idx, 1);
+                        window.showModal('Pembayaran Booking', renderPaymentModal());
+                        setupModalHandlers();
+                    }
+                };
+            });
+
+            // View booking details
+            const viewBtn = document.getElementById('view-booking-btn');
+            if (viewBtn) {
+                viewBtn.onclick = (e) => {
+                    e.preventDefault();
+                    if (window.bookingManager && typeof window.bookingManager.viewBooking === 'function') {
+                        window.closeModal();
+                        window.bookingManager.viewBooking(booking.id);
+                    }
+                };
+            }
+
+            // Confirm payment
+            const confirmBtn = document.getElementById('confirm-payment-btn');
+            if (confirmBtn) {
+                confirmBtn.onclick = async (e) => {
+                    e.preventDefault();
+                    // Update booking and persist
+                    booking.status = 'paid';
+                    booking.extraCharges = extraCharges;
+                    if (window.dbManager) {
+                        await window.dbManager.update('bookings', booking.id, booking);
+                    }
+                    window.closeModal();
+                    window.showNotification && window.showNotification('Pembayaran berhasil dikonfirmasi', 'success');
+                    if (window.bookingManager) {
+                        window.bookingManager.loadBookings && window.bookingManager.loadBookings();
+                    }
+                };
+            }
+
+            // Close button
+            const closeBtn = document.getElementById('close-payment-btn');
+            if (closeBtn) closeBtn.onclick = () => window.closeModal();
+
+            // Update displayed total when needed
+            const totalEl = document.getElementById('payment-total');
+            if (totalEl) {
+                const updatedTotal = booking.price + extraCharges.reduce((s, c) => s + c.amount, 0);
+                totalEl.textContent = 'Rp ' + updatedTotal.toLocaleString('id-ID');
+            }
         }
 
-        window.confirmPayment = async () => {
-            // Simpan pembayaran (update status booking, simpan tagihan tambahan jika perlu)
-            booking.status = 'paid';
-            booking.extraCharges = extraCharges;
-            // Simpan ke database jika ada dbManager
-            if (window.dbManager) {
-                await window.dbManager.update('bookings', booking.id, booking);
-            }
-            window.closeModal();
-            window.showNotification && window.showNotification('Pembayaran berhasil dikonfirmasi', 'success');
-            // Refresh tampilan
-            if (window.bookingManager) {
-                window.bookingManager.loadBookings && window.bookingManager.loadBookings();
-            }
-        };
-
         window.showModal('Pembayaran Booking', renderPaymentModal());
+        // bind handlers after modal content is injected
         setupModalHandlers();
     }
     
