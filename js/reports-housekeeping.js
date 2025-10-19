@@ -348,8 +348,8 @@ class HousekeepingManager {
     }
 }
 
-// Reports Management Module
-class ReportsManager {
+// Reports Management Module (housekeeping-specific)
+class ReportsHousekeepingManager {
     constructor() {
         this.bookings = [];
         this.payments = [];
@@ -753,7 +753,9 @@ document.addEventListener('DOMContentLoaded', async function() {
     try {
         await waitForDatabase();
         window.housekeepingManager = new HousekeepingManager();
-        window.reportsManager = new ReportsManager();
+    // Avoid overwriting the global reportsManager from reports.js
+    // expose a separate instance for housekeeping reports if needed
+    window.reportsHousekeepingManager = new ReportsHousekeepingManager();
     } catch (error) {
         console.error('Failed to initialize housekeeping and reports managers:', error);
     }

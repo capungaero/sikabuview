@@ -45,7 +45,18 @@ class ModernCalendar {
         try {
             // Get bookings from database
             if (window.dbManager) {
-                this.bookings = await window.dbManager.getAll('bookings') || [];
+                // Use select API to fetch bookings
+                try {
+                    this.bookings = await window.dbManager.select('bookings') || [];
+                } catch (err) {
+                    // older dbManager implementations may have different APIs
+                    console.warn('dbManager.select failed, falling back to getAll if available', err);
+                    if (typeof window.dbManager.getAll === 'function') {
+                        this.bookings = await window.dbManager.getAll('bookings') || [];
+                    } else {
+                        this.bookings = [];
+                    }
+                }
             } else {
                 // Fallback to localStorage
                 const storedBookings = localStorage.getItem('sikabu_bookings');
@@ -64,10 +75,13 @@ class ModernCalendar {
         this.events = [];
         
         this.bookings.forEach(booking => {
-            if (!booking.checkIn || !booking.checkOut) return;
-            
-            const checkInDate = new Date(booking.checkIn);
-            const checkOutDate = new Date(booking.checkOut);
+            // normalize date fields (some code uses checkIn/checkOut, others use checkinDate/checkoutDate)
+            const checkInVal = booking.checkIn || booking.checkinDate || booking.checkInDate;
+            const checkOutVal = booking.checkOut || booking.checkoutDate || booking.checkOutDate;
+            if (!checkInVal || !checkOutVal) return;
+
+            const checkInDate = new Date(checkInVal);
+            const checkOutDate = new Date(checkOutVal);
             const currentDate = new Date();
             
             // Determine booking status
