@@ -505,6 +505,7 @@ class BookingManager {
 
                         if (window.dbManager) {
                             await window.dbManager.insert('payments', paymentRecord);
+                            document.dispatchEvent(new CustomEvent('paymentCreated', { detail: { payment: paymentRecord } }));
                         }
 
                         // Update booking

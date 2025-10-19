@@ -137,6 +137,9 @@ class PaymentManager {
 
             await window.dbManager.insert('payments', payment);
 
+            // Dispatch event for payment created so other modules can update
+            document.dispatchEvent(new CustomEvent('paymentCreated', { detail: { payment } }));
+
             // Update booking status if fully paid
             if (paidAmount >= amount) {
                 booking.paymentStatus = 'paid';
@@ -373,6 +376,9 @@ class PaymentManager {
             
             // Save payment
             const paymentId = await window.dbManager.insert('payments', paymentData);
+
+            // Dispatch event for payment created so other modules can update
+            document.dispatchEvent(new CustomEvent('paymentCreated', { detail: { payment: paymentData } }));
             
             if (paymentId) {
                 // Update booking status to checked out

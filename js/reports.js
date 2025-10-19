@@ -38,6 +38,16 @@ class ReportsManager {
                 this.updateAllReports();
             });
         });
+
+        // Refresh reports when a payment is created
+        document.addEventListener('paymentCreated', async () => {
+            try {
+                await this.loadData();
+                this.updateAllReports();
+            } catch (err) {
+                console.error('Error updating reports after payment:', err);
+            }
+        });
     }
 
     updateAllReports() {

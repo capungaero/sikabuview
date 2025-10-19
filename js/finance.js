@@ -41,6 +41,16 @@ class FinanceManager {
         
         // Set default expense date
         this.setDefaultExpenseDate();
+
+        // Listen to payment events to refresh finance data
+        document.addEventListener('paymentCreated', async (e) => {
+            try {
+                await this.loadFinanceData();
+                this.updateFinanceSummary();
+            } catch (err) {
+                console.error('Error refreshing finance data after payment:', err);
+            }
+        });
     }
     
     setDefaultExpenseDate() {
