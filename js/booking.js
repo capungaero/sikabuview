@@ -382,14 +382,25 @@ class BookingManager {
 
             const total = booking.price + extraCharges.reduce((sum, c) => sum + c.amount, 0);
 
+            // Format tanggal check-in dan check-out
+            let checkIn = booking.checkIn || booking.checkinDate || '-';
+            let checkOut = booking.checkOut || booking.checkoutDate || '-';
+            // Format jika tipe Date
+            if (checkIn instanceof Date) checkIn = checkIn.toLocaleDateString('id-ID');
+            if (checkOut instanceof Date) checkOut = checkOut.toLocaleDateString('id-ID');
+
+            // Tampilkan tipe kamar
+            let bookingType = booking.bookingType ? (window.bookingManager && window.bookingManager.getBookingTypeLabel ? window.bookingManager.getBookingTypeLabel(booking.bookingType) : booking.bookingType) : '-';
+
             return `
                 <div class="payment-popup">
                     <h3>Pembayaran Booking</h3>
                     <div class="booking-summary">
                         <p><b>Nama Tamu:</b> ${booking.guestName}</p>
+                        <p><b>Tipe Kamar:</b> ${bookingType}</p>
                         <p><b>Kamar/Unit:</b> ${booking.roomNumber || '-'}</p>
-                        <p><b>Check-in:</b> ${booking.checkIn}</p>
-                        <p><b>Check-out:</b> ${booking.checkOut}</p>
+                        <p><b>Check-in:</b> ${checkIn}</p>
+                        <p><b>Check-out:</b> ${checkOut}</p>
                         <p><b>Status:</b> ${booking.status}</p>
                         <p><b>Harga Booking:</b> Rp ${booking.price.toLocaleString('id-ID')}</p>
                     </div>
