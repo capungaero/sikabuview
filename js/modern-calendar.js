@@ -15,8 +15,8 @@ class ModernCalendar {
         this.init();
     }
 
-    init() {
-        this.loadBookings();
+    async init() {
+        await this.loadBookings();
         this.render();
         this.setupEventListeners();
         
@@ -41,13 +41,23 @@ class ModernCalendar {
         });
     }
 
-    loadBookings() {
-        // Get bookings from localStorage or database
-        const storedBookings = localStorage.getItem('sikabu_bookings');
-        this.bookings = storedBookings ? JSON.parse(storedBookings) : [];
-        
-        // Process bookings to create calendar events
-        this.processBookings();
+    async loadBookings() {
+        try {
+            // Get bookings from database
+            if (window.dbManager) {
+                this.bookings = await window.dbManager.getAll('bookings') || [];
+            } else {
+                // Fallback to localStorage
+                const storedBookings = localStorage.getItem('sikabu_bookings');
+                this.bookings = storedBookings ? JSON.parse(storedBookings) : [];
+            }
+            
+            // Process bookings to create calendar events
+            this.processBookings();
+        } catch (error) {
+            console.error('Error loading bookings for calendar:', error);
+            this.bookings = [];
+        }
     }
 
     processBookings() {
@@ -186,19 +196,13 @@ class ModernCalendar {
         const dayEvents = this.getEventsForDate(date);
         const maxVisibleEvents = 3;
         
-        dayEvents.slice(0, maxVisibleEvents).forEach(event => {
-            const eventEl = document.createElement('div');
-            eventEl.className = `calendar-event ${event.type}`;
-            eventEl.textContent = event.title;
-            eventEl.title = `${event.title}\nKamar: ${event.room}\nTanggal: ${this.formatDate(event.date)}`;
+        events.forEach(event => {
+            const eventElement = document.createElement('div');
+            eventElement.className = `calendar-event status-${event.status || 'pending'}`;
+            eventElement.textContent = event.title;
+            eventElement.title = `${event.title}\nWaktu: ${event.checkIn} - ${event.checkOut}\nStatus: ${this.getStatusLabel(event.status)}\nKamar: ${event.roomNumber || '-'}`;
             
-            // Add click handler
-            eventEl.addEventListener('click', (e) => {
-                e.stopPropagation();
-                this.showEventDetails(event);
-            });
-            
-            eventsEl.appendChild(eventEl);
+            cell.appendChild(eventElement);
         });
 
         // Show "more" indicator if there are hidden events
@@ -246,6 +250,15 @@ class ModernCalendar {
             month: 'long',
             day: 'numeric'
         });
+    }
+
+    getStatusLabel(status) {
+        const labels = {
+            'pending': 'Pending',
+            'confirmed': 'Confirmed',
+            'paid': 'Sudah Bayar'
+        };
+        return labels[status] || 'Pending';
     }
 
     showEventDetails(event) {
@@ -308,8 +321,154 @@ class ModernCalendar {
     }
 
     onCellClick(date) {
-        // Could be used to create new booking or show day details
-        console.log('Clicked date:', this.formatDate(date));
+        // Show create booking modal for the selected date
+        this.showCreateBookingModal(date);
+    }
+
+    showCreateBookingModal(date) {
+        const formattedDate = date.toISOString().split('T')[0];
+        const tomorrowDate = new Date(date);
+        tomorrowDate.setDate(tomorrowDate.getDate() + 1);
+        const tomorrowFormatted = tomorrowDate.toISOString().split('T')[0];
+
+        const modalContent = `
+            <div class="quick-booking-form">
+                <h4>Buat Booking Baru</h4>
+                <p class="selected-date">Tanggal: ${this.formatDate(date)}</p>
+                
+                <form id="quick-booking-form">
+                    <div class="form-group">
+                        <label for="quick-guest-name">Nama Tamu</label>
+                        <input type="text" id="quick-guest-name" name="guestName" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="quick-guest-phone">No. Telepon</label>
+                        <input type="tel" id="quick-guest-phone" name="guestPhone" required>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="quick-checkin">Check-in</label>
+                            <input type="date" id="quick-checkin" name="checkIn" value="${formattedDate}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="quick-checkout">Check-out</label>
+                            <input type="date" id="quick-checkout" name="checkOut" value="${tomorrowFormatted}" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="quick-room-type">Jenis Akomodasi</label>
+                            <select id="quick-room-type" name="bookingType" required>
+                                <option value="">Pilih Jenis</option>
+                                <option value="kamar">Kamar</option>
+                                <option value="villa">Villa</option>
+                                <option value="camping">Camping Ground</option>
+                                <option value="tent">Tenda</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="quick-room-number">Nomor Kamar/Unit</label>
+                            <input type="text" id="quick-room-number" name="roomNumber" placeholder="Contoh: A101">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="quick-status">Status</label>
+                            <select id="quick-status" name="status" required>
+                                <option value="pending">Pending</option>
+                                <option value="confirmed">Confirmed</option>
+                                <option value="paid">Sudah Bayar</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="quick-price">Harga (Rp)</label>
+                            <input type="number" id="quick-price" name="price" min="0" step="5000" value="100000">
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Simpan Booking
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="window.closeModal()">
+                            Batal
+                        </button>
+                    </div>
+                </form>
+            </div>
+        `;
+
+        window.showModal('Booking Baru', modalContent);
+
+        // Setup form handler
+        const form = document.getElementById('quick-booking-form');
+        if (form) {
+            form.addEventListener('submit', (e) => this.handleQuickBooking(e));
+        }
+    }
+
+    async handleQuickBooking(event) {
+        event.preventDefault();
+        
+        try {
+            const formData = new FormData(event.target);
+            const bookingData = {
+                guestId: 'G' + Date.now(), // Auto generate ID
+                guestName: formData.get('guestName'),
+                guestPhone: formData.get('guestPhone'),
+                bookingDate: new Date().toISOString().split('T')[0],
+                checkIn: formData.get('checkIn'),
+                checkOut: formData.get('checkOut'),
+                bookingType: formData.get('bookingType'),
+                roomNumber: formData.get('roomNumber') || '',
+                quantity: 1,
+                price: parseFloat(formData.get('price')) || 0,
+                status: formData.get('status') || 'pending',
+                notes: 'Dibuat dari calendar',
+                createdAt: new Date().toISOString(),
+                totalPrice: parseFloat(formData.get('price')) || 0
+            };
+
+            // Validate dates
+            if (new Date(bookingData.checkIn) >= new Date(bookingData.checkOut)) {
+                throw new Error('Tanggal check-out harus setelah tanggal check-in');
+            }
+
+            // Save to database
+            if (window.dbManager) {
+                const bookingId = await window.dbManager.insert('bookings', bookingData);
+                
+                if (bookingId) {
+                    window.closeModal();
+                    
+                    // Show success notification
+                    if (window.showNotification) {
+                        window.showNotification('Booking berhasil ditambahkan', 'success');
+                    }
+                    
+                    // Refresh calendar
+                    await this.refresh();
+                    
+                    // Dispatch event for other modules
+                    document.dispatchEvent(new CustomEvent('bookingCreated', {
+                        detail: { bookingId, bookingData }
+                    }));
+                } else {
+                    throw new Error('Gagal menyimpan booking');
+                }
+            } else {
+                throw new Error('Database tidak tersedia');
+            }
+        } catch (error) {
+            console.error('Error creating booking:', error);
+            if (window.showNotification) {
+                window.showNotification('Error: ' + error.message, 'error');
+            }
+        }
     }
 
     // Navigation methods
@@ -328,8 +487,8 @@ class ModernCalendar {
         this.render();
     }
 
-    refresh() {
-        this.loadBookings();
+    async refresh() {
+        await this.loadBookings();
         this.render();
         
         // Show notification

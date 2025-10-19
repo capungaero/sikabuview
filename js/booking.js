@@ -92,17 +92,19 @@ class BookingManager {
                 guestName: formData.get('guestName'),
                 guestPhone: formData.get('guestPhone'),
                 bookingDate: formData.get('bookingDate'),
-                checkinDate: formData.get('checkinDate'),
-                checkoutDate: formData.get('checkoutDate'),
+                checkIn: formData.get('checkinDate'),
+                checkOut: formData.get('checkoutDate'),
                 bookingType: formData.get('bookingType'),
                 quantity: parseInt(formData.get('quantity')),
                 price: parseFloat(formData.get('price')),
                 notes: formData.get('notes') || '',
-                status: 'pending'
+                status: formData.get('status') || 'pending',
+                roomNumber: formData.get('roomNumber') || '',
+                createdAt: new Date().toISOString()
             };
             
             // Validate dates
-            if (new Date(bookingData.checkinDate) >= new Date(bookingData.checkoutDate)) {
+            if (new Date(bookingData.checkIn) >= new Date(bookingData.checkOut)) {
                 throw new Error('Tanggal check-out harus setelah tanggal check-in');
             }
             
@@ -188,18 +190,18 @@ class BookingManager {
                 </td>
                 <td>
                     <button class="action-btn view" onclick="bookingManager.viewBooking(${booking.id})" title="Lihat Detail">
-                        👁️
+                        <span style="font-size:1.3em;">👁️</span> Lihat
                     </button>
                     <button class="action-btn edit" onclick="bookingManager.editBooking(${booking.id})" title="Edit">
-                        ✏️
+                        <span style="font-size:1.3em;">✏️</span> Edit
                     </button>
                     ${booking.status === 'pending' || booking.status === 'confirmed' ? `
                         <button class="action-btn pay" onclick="bookingManager.processPayment(${booking.id})" title="Bayar">
-                            💳
+                            <span style="font-size:1.3em;">💳</span> Bayar
                         </button>
                     ` : ''}
                     <button class="action-btn delete" onclick="bookingManager.deleteBooking(${booking.id})" title="Hapus">
-                        🗑️
+                        <span style="font-size:1.3em;">🗑️</span> Hapus
                     </button>
                 </td>
             </tr>
@@ -356,12 +358,109 @@ class BookingManager {
         }
     }
     
-    processPayment(bookingId) {
-        // Switch to payment tab and load the booking
-        window.showTab('payment');
-        if (window.paymentManager) {
-            window.paymentManager.loadBookingForPayment(bookingId);
+    async processPayment(bookingId) {
+        // Ambil data booking
+        const booking = this.currentBookings.find(b => b.id === bookingId);
+        if (!booking) {
+            window.showNotification && window.showNotification('Booking tidak ditemukan', 'error');
+            return;
         }
+
+        // Tagihan tambahan
+        let extraCharges = [];
+
+        // Render popup pembayaran
+        const renderPaymentModal = () => {
+            let extraRows = extraCharges.map((item, idx) => `
+                <tr>
+                    <td>${item.name}</td>
+                    <td>Rp ${item.amount.toLocaleString('id-ID')}</td>
+                    <td><button type="button" class="btn btn-danger btn-sm" onclick="removeExtraCharge(${idx})">Hapus</button></td>
+                </tr>
+            `).join('');
+            if (!extraRows) extraRows = '<tr><td colspan="3" style="text-align:center;color:#aaa;">Belum ada tagihan tambahan</td></tr>';
+
+            const total = booking.price + extraCharges.reduce((sum, c) => sum + c.amount, 0);
+
+            return `
+                <div class="payment-popup">
+                    <h3>Pembayaran Booking</h3>
+                    <div class="booking-summary">
+                        <p><b>Nama Tamu:</b> ${booking.guestName}</p>
+                        <p><b>Kamar/Unit:</b> ${booking.roomNumber || '-'}</p>
+                        <p><b>Check-in:</b> ${booking.checkIn}</p>
+                        <p><b>Check-out:</b> ${booking.checkOut}</p>
+                        <p><b>Status:</b> ${booking.status}</p>
+                        <p><b>Harga Booking:</b> Rp ${booking.price.toLocaleString('id-ID')}</p>
+                    </div>
+                    <hr>
+                    <h4>Tagihan Tambahan</h4>
+                    <table class="extra-charges-table">
+                        <thead><tr><th>Item</th><th>Jumlah</th><th></th></tr></thead>
+                        <tbody>${extraRows}</tbody>
+                    </table>
+                    <form id="extra-charge-form" style="margin-top:10px;display:flex;gap:8px;align-items:end;">
+                        <div>
+                            <label>Nama Item</label>
+                            <input type="text" id="extra-item-name" required placeholder="Contoh: Makanan">
+                        </div>
+                        <div>
+                            <label>Jumlah (Rp)</label>
+                            <input type="number" id="extra-item-amount" required min="0" step="1000" placeholder="0">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Tambah</button>
+                    </form>
+                    <hr>
+                    <div class="total-row"><b>Total Bayar:</b> <span style="font-size:1.2em;color:#2563eb;">Rp ${total.toLocaleString('id-ID')}</span></div>
+                    <div style="margin-top:18px;display:flex;gap:10px;justify-content:flex-end;">
+                        <button class="btn btn-success" onclick="confirmPayment()">Konfirmasi Bayar</button>
+                        <button class="btn btn-secondary" onclick="window.closeModal()">Tutup</button>
+                    </div>
+                </div>
+            `;
+        };
+
+        // Handler untuk tambah tagihan
+        window.removeExtraCharge = (idx) => {
+            extraCharges.splice(idx, 1);
+            window.showModal('Pembayaran Booking', renderPaymentModal());
+            setupModalHandlers();
+        };
+
+        function setupModalHandlers() {
+            const form = document.getElementById('extra-charge-form');
+            if (form) {
+                form.onsubmit = (e) => {
+                    e.preventDefault();
+                    const name = document.getElementById('extra-item-name').value.trim();
+                    const amount = parseInt(document.getElementById('extra-item-amount').value, 10) || 0;
+                    if (name && amount > 0) {
+                        extraCharges.push({ name, amount });
+                        window.showModal('Pembayaran Booking', renderPaymentModal());
+                        setupModalHandlers();
+                    }
+                };
+            }
+        }
+
+        window.confirmPayment = async () => {
+            // Simpan pembayaran (update status booking, simpan tagihan tambahan jika perlu)
+            booking.status = 'paid';
+            booking.extraCharges = extraCharges;
+            // Simpan ke database jika ada dbManager
+            if (window.dbManager) {
+                await window.dbManager.update('bookings', booking.id, booking);
+            }
+            window.closeModal();
+            window.showNotification && window.showNotification('Pembayaran berhasil dikonfirmasi', 'success');
+            // Refresh tampilan
+            if (window.bookingManager) {
+                window.bookingManager.loadBookings && window.bookingManager.loadBookings();
+            }
+        };
+
+        window.showModal('Pembayaran Booking', renderPaymentModal());
+        setupModalHandlers();
     }
     
     updatePaymentBookingDropdown() {
@@ -518,6 +617,18 @@ window.filterBookings = () => {
     try {
         await waitForDatabase();
         window.bookingManager = new BookingManager();
+        
+        // Listen for bookings created from calendar
+        document.addEventListener('bookingCreated', (event) => {
+            const { bookingData } = event.detail;
+            console.log('New booking created from calendar:', bookingData);
+            
+            // Refresh booking list if we're on booking page
+            if (document.getElementById('booking-list') && window.bookingManager) {
+                window.bookingManager.loadBookings();
+            }
+        });
+        
     } catch (error) {
         console.error('Failed to initialize BookingManager:', error);
     }
