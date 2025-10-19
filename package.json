@@ -3,16 +3,23 @@
   "version": "1.0.0",
   "description": "Sistem Manajemen Penginapan Villa & Camping Ground",
   "main": "index.html",
-  "scripts": {
-    "start": "npx http-server . -p 8080 -c-1",
-    "dev": "npx http-server . -p 3000 -c-1 -o",
-    "build": "echo 'Static app - no build needed'",
-    "deploy": "echo 'Ready for static deployment'"
-  },
+  
   "keywords": ["penginapan", "booking", "villa", "camping"],
   "author": "SikaBu Team",
   "license": "MIT",
   "devDependencies": {
-    "http-server": "^14.1.1"
+    "http-server": "^14.1.1",
+    "mocha": "^10.2.0",
+    "chai": "^4.3.7",
+    "jsdom": "^22.1.0",
+    "puppeteer": "^20.8.0"
+  },
+  "scripts": {
+    "start": "npx http-server . -p 8080 -c-1",
+    "dev": "npx http-server . -p 3000 -c-1 -o",
+    "build": "echo 'Static app - no build needed'",
+    "deploy": "echo 'Ready for static deployment'",
+    "test": "mocha \"tests/**/*.test.js\" --exit",
+    "test:integration": "mocha \"tests/integration/**/*.test.js\" --exit"
   }
 }
