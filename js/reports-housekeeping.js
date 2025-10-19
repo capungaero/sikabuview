@@ -682,19 +682,25 @@ function showHousekeepingTab(tabName) {
 }
 
 function generateReport() {
-    if (window.reportsManager) {
+    if (window.reportsHousekeepingManager) {
+        window.reportsHousekeepingManager.generateReport();
+    } else if (window.reportsManager) {
         window.reportsManager.generateReport();
     }
 }
 
 function updateReportPeriod() {
-    if (window.reportsManager) {
+    if (window.reportsHousekeepingManager) {
+        window.reportsHousekeepingManager.updateReportPeriod();
+    } else if (window.reportsManager) {
         window.reportsManager.updateReportPeriod();
     }
 }
 
 function showReportTab(tabName) {
-    if (window.reportsManager) {
+    if (window.reportsHousekeepingManager) {
+        window.reportsHousekeepingManager.showReportTab(tabName);
+    } else if (window.reportsManager) {
         window.reportsManager.showReportTab(tabName);
     }
 }
